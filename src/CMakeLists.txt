@@ -11,6 +11,8 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_LIST_DIR}/ui)
 find_package(Qt5 COMPONENTS Core Gui OpenGL Multimedia Network Widgets Xml REQUIRED)
 set(QT_DEPS_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Multimedia Qt5::Network Qt5::Widgets Qt5::Xml)
 
+find_package(OpenGL)
+
 find_package(vaslib REQUIRED)
 
 file(GLOB VASFMC_SOURCES fmc_data.cpp fmc_control.cpp fmc_autopilot.cpp fmc_autothrottle.cpp fmc_processor.cpp
@@ -43,10 +45,19 @@ file(GLOB VASFMC_UI ${CMAKE_CURRENT_LIST_DIR}/ui/fmc_navdisplay.ui
                     ${CMAKE_CURRENT_LIST_DIR}/ui/fmc_fcu.ui
                     ${CMAKE_CURRENT_LIST_DIR}/ui/fmc_gps.ui)
 
+
+if(VAS_GL_EMUL)
+    file(GLOB GL_SOURCES vas_gl.cpp vas_gl_backend_qt.cpp vas_gl_backend_agg.cpp)
+    file(GLOB GL_HEADERS vas_gl_backend_qt.h vas_gl_backend_agg.h)
+else()
+    file(GLOB GL_SOURCES vas_gl_native.cpp)
+endif(VAS_GL_EMUL)
+
 set_source_files_properties(${PROJECT_NAME}.rc PROPERTIES LANGUAGE RC)
 
-add_executable(${PROJECT_NAME} WIN32 ${VASFMC_UI} ${VASFMC_SOURCES} ${VASFMC_HEADER})
-target_link_libraries(${PROJECT_NAME} ${QT_DEPS_LIBRARIES} vaslib)
+add_executable(${PROJECT_NAME} WIN32 ${VASFMC_UI} ${VASFMC_SOURCES} ${VASFMC_HEADER} ${GL_SOURCES} ${GL_HEADERS})
+target_link_libraries(${PROJECT_NAME} ${QT_DEPS_LIBRARIES} vaslib ${OPENGL_LIBRARIES})
+
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} ws2_32)
 endif()
@@ -58,3 +69,5 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE USE_FONTRENDERER)
 
 ################## SOUND STUFF ##################
 target_compile_definitions(${PROJECT_NAME} PRIVATE USE_QSOUND)
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE VAS_GL_EMUL=0)
