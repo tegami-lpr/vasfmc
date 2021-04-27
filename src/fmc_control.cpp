@@ -653,8 +653,10 @@ void FMCControl::slotCentralTimer()
                 break;
             }
             case(4): {
-                if (m_fcu_handler->fmcFcuBase() != 0) 
-                    m_fcu_handler->fmcFcuBase()->slotProcessInput();
+                if (m_fcu_handler) {
+                    if (m_fcu_handler->fmcFcuBase() != nullptr)
+                        m_fcu_handler->fmcFcuBase()->slotProcessInput();
+                }
                 break;
             }
         }
