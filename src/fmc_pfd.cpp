@@ -51,7 +51,7 @@ FMCPFD::FMCPFD(ConfigWidgetProvider* config_widget_provider,
                const QString& pfd_config_filename,
                FMCControl* fmc_control,
                QWidget* parent, 
-               Qt::WFlags fl,
+               Qt::WindowFlags fl,
                bool left_side)
     : VasWidget(parent, fl), m_config_widget_provider(config_widget_provider), 
       m_main_config(main_config), m_pfd_config(0), 

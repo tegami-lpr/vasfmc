@@ -36,7 +36,9 @@
 #ifdef Q_OS_WIN32
 #include "fsaccess_msfs.h"
 #endif
+#ifdef HAVE_XPLANE
 #include "fsaccess_xplane.h"
+#endif
 #ifdef HAVE_PLIB
 #include "fsaccess_fgfs.h"
 #endif /* HAVE_PLIB */
@@ -531,7 +533,9 @@ void FMCControl::setupFsAccess()
 #if VASFMC_GAUGE
         Logger::log("Switching to X-Plane for gauge usage is not supported. Why would you want to do that???");
 #else
-        m_fs_access = new FSAccessXPlane(m_config_widget_provider, CFG_XPLANE_FILENAME, m_flightstatus);
+        //TODO: add support for XPlane
+        //m_fs_access = new FSAccessXPlane(m_config_widget_provider, CFG_XPLANE_FILENAME, m_flightstatus);
+        Logger::log("Switching to X-Plane is not supported.");
 #endif
     }
 #ifdef HAVE_PLIB

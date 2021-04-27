@@ -63,7 +63,7 @@ public:
             const QString& ecam_config_filename,
             FMCControl* fmc_control,
             QWidget* parent,
-            Qt::WFlags fl);
+            Qt::WindowFlags fl);
        
     virtual ~FMCECAM();
 

@@ -25,7 +25,7 @@
 #include <QFrame>
 #include <QPaintEvent>
 #include <QPainter>
-#include <QWindowsStyle>
+//#include <QWindowsStyle>
 #include <QPalette>
 #include <QGridLayout>
 
@@ -52,7 +52,7 @@ FMCFCUStyleA::FMCFCUStyleA(ConfigWidgetProvider* config_widget_provider,
                            const QString& fcu_config_filename,
                            FMCControl* fmc_control,
                            QWidget* parent,
-                           Qt::WFlags fl) :
+                           Qt::WindowFlags fl) :
     FMCFCUStyleBase("A", config_widget_provider, main_config, fcu_config_filename, fmc_control, parent, fl),
     m_alt_set_mode(ALT_SET_MODE_100FT), 
     m_last_range_left(-1), m_last_range_right(-1), m_last_mode_left(-1), m_last_mode_right(-1)    

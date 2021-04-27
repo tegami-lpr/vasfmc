@@ -53,7 +53,7 @@ public:
                  const QString& gps_config_filename,
                  FMCControl* fmc_control,
                  QWidget* parent,
-                 Qt::WFlags fl);
+                 Qt::WindowFlags fl);
        
     virtual ~FMCGPSStyleG();
 

@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 {
     Logger::getLogger()->setLogFile(CFG_LOGFILE_NAME);
     Logger::log("     ----- Startup -----");
-    qInstallMsgHandler(myMessageOutput);
+    //TODO: qInstallMessageHandler(myMessageOutput);
     QApplication app(argc, argv);
 
     // setup console

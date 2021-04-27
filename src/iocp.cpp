@@ -68,7 +68,7 @@ IOCPServer::~IOCPServer()
         QTcpSocket *client_connection = m_client_socket_list[0];
         MYASSERT(disconnect(client_connection, SIGNAL(disconnected()), this, SLOT(slotGotClientData())));
         MYASSERT(disconnect(client_connection, SIGNAL(readyRead()), this, SLOT(slotGotClientData())));
-        client_connection->write(QString("Arn.Fin:CL").toAscii());
+        client_connection->write(QString("Arn.Fin:CL").toLatin1());
         m_client_socket_list.removeAt(0);
         delete client_connection;
         client_connection = 0;
@@ -175,7 +175,7 @@ void IOCPServer::slotNewConnection()
                 arg(client_connection->peerAddress().toString()).
                 arg(client_connection->peerPort()));
 
-    client_connection->write(QString("Arn.TipoSer:vasFMC:CL\r\n").toAscii());
+    client_connection->write(QString("Arn.TipoSer:vasFMC:CL\r\n").toLatin1());
 }
 
 /////////////////////////////////////////////////////////////////////////////

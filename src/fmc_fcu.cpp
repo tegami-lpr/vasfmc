@@ -46,7 +46,7 @@ FMCFCUStyleBase::FMCFCUStyleBase(const QString& style,
                                  const QString& fcu_config_filename,
                                  FMCControl* fmc_control,
                                  QWidget* parent,
-                                 Qt::WFlags fl) :
+                                 Qt::WindowFlags fl) :
     VasWidget(parent, fl),
     m_config_widget_provider(config_widget_provider), 
     m_main_config(main_config), m_fmc_control(fmc_control)

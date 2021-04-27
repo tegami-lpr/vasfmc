@@ -50,7 +50,7 @@ FMCECAM::FMCECAM(bool upper_ecam,
                  const QString& ecam_config_filename,
                  FMCControl* fmc_control,
                  QWidget* parent, 
-                 Qt::WFlags fl)
+                 Qt::WindowFlags fl)
     : VasWidget(parent, fl), m_upper_ecam(upper_ecam), 
       m_config_widget_provider(config_widget_provider), 
       m_main_config(main_config), m_ecam_config(0), 
