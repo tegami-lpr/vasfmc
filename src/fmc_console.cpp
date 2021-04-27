@@ -63,7 +63,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-FMCConsole::FMCConsole(QWidget* parent, Qt::WFlags fl, const QString& style) :
+FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style) :
 #if !VASFMC_GAUGE
     QMainWindow(parent, fl),
 #endif

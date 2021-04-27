@@ -25,7 +25,7 @@
 #include <QFrame>
 #include <QPaintEvent>
 #include <QPainter>
-#include <QWindowsStyle>
+//#include <QWindowsStyle>
 #include <QPalette>
 #include <QGridLayout>
 
@@ -54,7 +54,7 @@ FMCCDUStyleA::FMCCDUStyleA(ConfigWidgetProvider* config_widget_provider,
                            const QString& cdu_config_filename,
                            FMCControl* fmc_control,
                            QWidget* parent,
-                           Qt::WFlags fl,
+                           Qt::WindowFlags fl,
                            bool left_side) :
     FMCCDUStyleBase("A", config_widget_provider, main_config, cdu_config_filename, fmc_control, parent, fl, left_side), 
     m_page_manager(0)

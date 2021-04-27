@@ -8,8 +8,8 @@ set(CMAKE_AUTOUIC             ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_LIST_DIR}/ui)
 
 # Qt's components
-find_package(Qt5 COMPONENTS Core Gui Network Widgets Xml REQUIRED)
-set(QT_DEPS_LIBRARIES Qt5::Core Qt5::Gui Qt5::Network Qt5::Widgets Qt5::Xml)
+find_package(Qt5 COMPONENTS Core Gui OpenGL Multimedia Network Widgets Xml REQUIRED)
+set(QT_DEPS_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Multimedia Qt5::Network Qt5::Widgets Qt5::Xml)
 
 find_package(vaslib REQUIRED)
 
@@ -54,7 +54,7 @@ endif()
 
 
 ################## FONT STUFF ##################
-target_include_directories(${PROJECT_NAME} PRIVATE USE_FONTRENDERER)
+target_compile_definitions(${PROJECT_NAME} PRIVATE USE_FONTRENDERER)
 
 ################## SOUND STUFF ##################
-target_include_directories(${PROJECT_NAME} PRIVATE USE_QSOUND)
+target_compile_definitions(${PROJECT_NAME} PRIVATE USE_QSOUND)

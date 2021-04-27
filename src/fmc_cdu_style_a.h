@@ -54,7 +54,7 @@ public:
                  const QString& cdu_config_filename,
                  FMCControl* fmc_control,
                  QWidget* parent,
-                 Qt::WFlags fl,
+                 Qt::WindowFlags fl,
                  bool left_side);
        
     virtual ~FMCCDUStyleA();

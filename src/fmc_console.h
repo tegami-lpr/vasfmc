@@ -68,7 +68,7 @@ class FMCConsole :
 
 public:
     //! Standard Constructor
-    FMCConsole(QWidget* parent, Qt::WFlags fl, const QString& style = QString::null);
+    FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style = QString::null);
 
     //! Destructor
     virtual ~FMCConsole();
