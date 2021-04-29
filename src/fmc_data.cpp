@@ -20,7 +20,7 @@
 
 #include <QObject>
 
-#include "assert.h"
+#include "vlassert.h"
 #include "config.h"
 #include "logger.h"
 #include "waypoint.h"

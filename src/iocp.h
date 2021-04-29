@@ -27,7 +27,7 @@
 
 #include <QObject>
 
-#include "assert.h"
+#include "vlassert.h"
 #include "logger.h"
 
 class Config;

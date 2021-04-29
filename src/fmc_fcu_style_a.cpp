@@ -30,7 +30,7 @@
 #include <QGridLayout>
 
 #include "config.h"
-#include "assert.h"
+#include "vlassert.h"
 #include "logger.h"
 #include "pushbutton.h"
 #include "vas_path.h"

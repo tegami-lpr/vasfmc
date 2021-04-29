@@ -25,7 +25,7 @@
 #include <QRegExp>
 
 #include "defines.h"
-#include "assert.h"
+#include "vlassert.h"
 #include "config.h"
 #include "logger.h"
 #include "vas_path.h"
@@ -679,8 +679,10 @@ void FMCControl::slotCentralTimer()
                 break;
             }
             case(1): {
-                if (m_fcu_handler->fmcFcuBase() != 0) 
-                    m_fcu_handler->fmcFcuBase()->slotRefresh();
+                if (m_fcu_handler) {
+                    if (m_fcu_handler->fmcFcuBase() != nullptr)
+                        m_fcu_handler->fmcFcuBase()->slotRefresh();
+                }
                 break;
             }
         }

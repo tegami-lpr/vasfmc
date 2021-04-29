@@ -28,7 +28,7 @@
 #include <QTimer>
 #include <QMutex>
 
-#include "assert.h"
+#include "vlassert.h"
 #include "config.h"
 #include "logger.h"
 #include "defines.h"

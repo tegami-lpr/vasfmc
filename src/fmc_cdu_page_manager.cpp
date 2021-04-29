@@ -23,7 +23,7 @@
 */
 
 #include "config.h"
-#include "assert.h"
+#include "vlassert.h"
 #include "logger.h"
 
 #include "fmc_control.h"

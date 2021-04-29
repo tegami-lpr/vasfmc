@@ -24,7 +24,7 @@
 
 #include <QHostAddress>
 
-#include "assert.h"
+#include "vlassert.h"
 #include "aircraft_data.h"
 #include "fly_by_wire.h"
 #include "flight_mode_tracker.h"

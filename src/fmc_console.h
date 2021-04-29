@@ -28,7 +28,7 @@
 #include <QMainWindow>
 #include <QTimer>
 
-#include "assert.h"
+#include "vlassert.h"
 #include "logger.h"
 #include "config.h"
 

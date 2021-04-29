@@ -68,35 +68,37 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
     QMainWindow(parent, fl),
 #endif
     //m_is_minimized(true), 
-    m_main_config(0), m_fmc_control(0), m_splash(0), m_info_dlg(0),
-    m_gps_handler(0), m_fcu_handler(0), m_cdu_left_handler(0), m_cdu_right_handler(0), m_navdisplay_left_handler(0), 
-    m_pfd_left_handler(0), m_navdisplay_right_handler(0), m_pfd_right_handler(0), m_logline_count(0),
-    m_quit_action(0), m_fsaccess_msfs_action(0), m_fsaccess_xplane_action(0), m_fsaccess_fgfs_action(0), 
-    m_style_a_action(0), m_style_b_action(0), m_style_g_action(0)
+    m_main_config(nullptr), m_fmc_control(nullptr), m_splash(nullptr), m_info_dlg(nullptr),
+    m_gps_handler(nullptr), m_fcu_handler(nullptr), m_cdu_left_handler(nullptr), m_cdu_right_handler(nullptr), m_navdisplay_left_handler(nullptr),
+    m_pfd_left_handler(nullptr), m_navdisplay_right_handler(nullptr), m_pfd_right_handler(nullptr), m_logline_count(0),
+    m_quit_action(nullptr), m_fsaccess_msfs_action(nullptr), m_fsaccess_xplane_action(nullptr), m_fsaccess_fgfs_action(nullptr),
+    m_style_a_action(nullptr), m_style_b_action(nullptr), m_style_g_action(nullptr)
 {
-    Logger::log(QString("FMCConsole: current_dir=%1").arg(QDir::currentPath()));
+    Logger::log(QString("FMCConsole: Application data path=%1").arg(VasPath::getAppDataPath()));
+    Logger::log(QString("FMCConsole: User data path=%1").arg(VasPath::getUserDataPath()));
 
-#if !VASFMC_GAUGE
+#if VASFMC_GAUGE
+    Q_UNUSED(parent);
+    Q_UNUSED(fl);
+#else
     setupUi(this);
 
     // setup splash
 
-    if (QFile::exists(SPLASHSCREEN_FILE))
+    QString splashFile = VasPath::prependPath(SPLASHSCREEN_FILE, VasPath::dpApp);
+    if (QFile::exists(splashFile))
     {
-        QPixmap pixmap(SPLASHSCREEN_FILE);
+        QPixmap pixmap(splashFile);
         m_splash = new QSplashScreen(pixmap);
         m_splash->showMessage("Starting up ...", Qt::AlignTop | Qt::AlignRight);
         m_splash->show();
     }
-#else
-    Q_UNUSED(parent);
-    Q_UNUSED(fl);
 #endif
 
     // setup main config
     Logger::log("Setup main config");
     m_main_config = new Config(CFG_MAIN_FILENAME);
-    MYASSERT(m_main_config != 0);
+    MYASSERT(m_main_config != nullptr);
     setupDefaultConfig();
     QDir vasfmc_dir(m_main_config->getValue(CFG_VASFMC_DIR));
     MYASSERT(vasfmc_dir.exists());

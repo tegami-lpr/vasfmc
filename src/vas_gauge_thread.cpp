@@ -29,7 +29,7 @@
 
 #include "vas_gauge_thread.h"
 
-#include "assert.h"
+#include "vlassert.h"
 #include "defines.h"
 #include "logger.h"
 #include "vas_path.h"

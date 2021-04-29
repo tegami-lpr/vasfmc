@@ -24,7 +24,7 @@
 
 #include <QDateTime>
 
-#include "assert.h"
+#include "vlassert.h"
 #include "logger.h"
 #include "config.h"
 #include "navcalc.h"

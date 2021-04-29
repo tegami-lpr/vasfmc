@@ -28,7 +28,7 @@
 #include <qextserialport.h>
 #endif
 
-#include "assert.h"
+#include "vlassert.h"
 #include "logger.h"
 #include "config.h"
 #include "flightstatus.h"

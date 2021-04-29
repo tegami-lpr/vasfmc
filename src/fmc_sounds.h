@@ -47,7 +47,7 @@
 #include <QTime>
 
 #include "fmc_sounds_defines.h"
-#include "assert.h"
+#include "vlassert.h"
 
 class Config;
 class FMCControl;

@@ -27,7 +27,7 @@
 #define __FMC_FLIGHSTATUS_CHECKER_BASE_H__
 
 #include "logger.h"
-#include "assert.h"
+#include "vlassert.h"
 
 #include "flightstatus.h"
 #include "fsaccess.h"

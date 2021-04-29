@@ -20,19 +20,20 @@
 
 #include <QApplication>
 
-#include <signal.h>
+#include <csignal>
 
 #include "defines.h"
-#include "assert.h"
 #include "config.h"
 #include "logger.h"
+#include "vas_path.h"
+#include "vlassert.h"
 
 #include "fmc_console.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
 // qt message logger
-void myMessageOutput(QtMsgType type, const char *msg)
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     switch (type) {
         case QtDebugMsg:
@@ -58,21 +59,27 @@ void myMessageOutput(QtMsgType type, const char *msg)
 void signalHandler(int signal_nr)
 {
     Logger::log(QString("signalHandler: (%1) -----  HANDLER -----").arg(signal_nr));
-    qApp->quit();
+    //qApp->quit();
+    QApplication::quit();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv)
 {
-    Logger::getLogger()->setLogFile(CFG_LOGFILE_NAME);
+    if (!VasPath::checkUserDataPath()) {
+        Logger::log("Error: Can't create user data dir.");
+        return 2;
+    }
+
+    Logger::getLogger()->setLogFile(VasPath::prependPath(CFG_LOGFILE_NAME));
     Logger::log("     ----- Startup -----");
-    //TODO: qInstallMessageHandler(myMessageOutput);
+    qInstallMessageHandler(myMessageOutput);
     QApplication app(argc, argv);
 
     // setup console
-    FMCConsole* console = new FMCConsole(0, 0);
-    MYASSERT(console != 0);
+    auto console = new FMCConsole(nullptr, nullptr);
+    MYASSERT(console != nullptr);
     
     //  signal handlers
     signal(SIGINT, signalHandler);
@@ -87,7 +94,7 @@ int main(int argc, char **argv)
 
     // start the application
     Logger::log("     ----- Starting processing loop -----");
-    app.exec();
+    QApplication::exec();
 
     // clean up
     Logger::log("     ----- Shutting down -----");

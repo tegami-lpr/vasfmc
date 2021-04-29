@@ -22,7 +22,7 @@
   \author  Alexander Wemmer, alex@wemmer.at
 */
 
-#include "assert.h"
+#include "vlassert.h"
 #include "config.h"
 #include "flightstatus.h"
 #include "fmc_control.h"
