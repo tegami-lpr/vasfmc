@@ -120,6 +120,8 @@
 #define CFG_FONT_SIZE8 "font_size8"
 #define CFG_FONT_SIZE9 "font_size9"
 
+#define CFG_SHOWSPLASH "show_splash"
+
 #define FS_ACCESS_TYPE_MSFS "msfs"
 #define FS_ACCESS_TYPE_XPLANE "xplane"
 #define FS_ACCESS_TYPE_FGFS "fgfs"

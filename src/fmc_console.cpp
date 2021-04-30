@@ -77,6 +77,14 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
     Logger::log(QString("FMCConsole: Application data path=%1").arg(VasPath::getAppDataPath()));
     Logger::log(QString("FMCConsole: User data path=%1").arg(VasPath::getUserDataPath()));
 
+    // setup main config
+    Logger::log("Setup main config");
+    m_main_config = new Config(CFG_MAIN_FILENAME);
+    bool res = m_main_config->loadfromFile();
+    if (!res) {
+        setupDefaultConfig();
+    }
+
 #if VASFMC_GAUGE
     Q_UNUSED(parent);
     Q_UNUSED(fl);
@@ -84,33 +92,35 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
     setupUi(this);
 
     // setup splash
-
-    QString splashFile = VasPath::prependPath(SPLASHSCREEN_FILE, VasPath::dpApp);
-    if (QFile::exists(splashFile))
-    {
-        QPixmap pixmap(splashFile);
-        m_splash = new QSplashScreen(pixmap);
-        m_splash->showMessage("Starting up ...", Qt::AlignTop | Qt::AlignRight);
-        m_splash->show();
+    bool showSplash = m_main_config->getIntValue(CFG_SHOWSPLASH);
+    if (showSplash) {
+        QString splashFile = VasPath::prependPath(SPLASHSCREEN_FILE, VasPath::dpApp);
+        if (QFile::exists(splashFile)) {
+            QPixmap pixmap(splashFile);
+            m_splash = new QSplashScreen(pixmap);
+            m_splash->showMessage("Starting up ...", Qt::AlignTop | Qt::AlignRight);
+            m_splash->show();
+        }
     }
 #endif
 
-    // setup main config
-    Logger::log("Setup main config");
-    m_main_config = new Config(CFG_MAIN_FILENAME);
-    MYASSERT(m_main_config != nullptr);
-    setupDefaultConfig();
-    QDir vasfmc_dir(m_main_config->getValue(CFG_VASFMC_DIR));
-    MYASSERT(vasfmc_dir.exists());
-    vasfmc_dir.mkdir("cfg");
-    vasfmc_dir.mkdir(m_main_config->getValue(CFG_FLIGHTPLAN_SUBDIR));
-    vasfmc_dir.mkdir(m_main_config->getValue(CFG_AIRCRAFT_DATA_SUBDIR));
-    vasfmc_dir.mkdir(m_main_config->getValue(CFG_CHECKLIST_SUBDIR));
-    m_main_config->loadfromFile();
+    // create necessary dirs
+    QDir vasfmc_dir(VasPath::getUserDataPath());
+    res = vasfmc_dir.mkpath("cfg");
+    if (res) res = vasfmc_dir.mkpath(m_main_config->getValue(CFG_FLIGHTPLAN_SUBDIR));
+    if (res) res = vasfmc_dir.mkpath(m_main_config->getValue(CFG_AIRCRAFT_DATA_SUBDIR));
+    if (res) res = vasfmc_dir.mkpath(m_main_config->getValue(CFG_CHECKLIST_SUBDIR));
+    if (!res) {
+        Logger::log(QString("FMCConsole: Can't create user data dirs"));
+        MYASSERT(false);
+        return;
+    }
+
     loadWindowGeometry();
     if (!m_main_config->contains(CFG_STARTUP_COUNTER)) m_main_config->setValue(CFG_STARTUP_COUNTER, 1);
     else m_main_config->setValue(CFG_STARTUP_COUNTER, m_main_config->getIntValue(CFG_STARTUP_COUNTER)+1);
     m_main_config->saveToFile();
+
     Logger::log("Setup main config: fin");
 
     if (!style.isEmpty())
@@ -123,25 +133,24 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
 #if !VASFMC_GAUGE
     // setup console
     setWindowTitle(QString("vasFMC ")+VERSION+" - (c) "+COPYRIGHT);
-    setStatusBar(0);
+    setStatusBar(nullptr);
     show();
-
-    MYASSERT(connect(Logger::getLogger(), SIGNAL(signalLogging(const QString&)), this, SLOT(slotLogging(const QString&))));
-
     if (m_main_config->getIntValue(CFG_CONSOLE_WINDOW_STATUS) == 0) showMinimized();
 
-    MYASSERT(connect(pfd_left_btn, SIGNAL(clicked()), this, SLOT(slotPFDLeftButton())));
-    MYASSERT(connect(nd_left_btn, SIGNAL(clicked()), this, SLOT(slotNDLeftButton())));
-    MYASSERT(connect(cdu_left_btn, SIGNAL(clicked()), this, SLOT(slotCDULeftButton())));
-    MYASSERT(connect(cdu_right_btn, SIGNAL(clicked()), this, SLOT(slotCDURightButton())));
-    MYASSERT(connect(upper_ecam_btn, SIGNAL(clicked()), this, SLOT(slotUpperECAMButton())));
-    MYASSERT(connect(fcu_btn, SIGNAL(clicked()), this, SLOT(slotFCUButton())));
-    MYASSERT(connect(gps_btn, SIGNAL(clicked()), this, SLOT(slotGPSButton())));
+    connect(Logger::getLogger(), &Logger::signalLogging, this, &FMCConsole::slotLogging);
+
+    connect(pfd_left_btn, &QPushButton::clicked, this, &FMCConsole::slotPFDLeftButton);
+    connect(nd_left_btn, &QPushButton::clicked, this, &FMCConsole::slotNDLeftButton);
+    connect(cdu_left_btn, &QPushButton::clicked, this, &FMCConsole::slotCDULeftButton);
+    connect(cdu_right_btn, &QPushButton::clicked, this, &FMCConsole::slotCDURightButton);
+    connect(upper_ecam_btn, &QPushButton::clicked, this, &FMCConsole::slotUpperECAMButton);
+    connect(fcu_btn, &QPushButton::clicked, this, &FMCConsole::slotFCUButton);
+    connect(gps_btn, &QPushButton::clicked, this, &FMCConsole::slotGPSButton);
     //TODO
     gps_btn->setEnabled(false);
     //TODOMYASSERT(connect(lower_ecam_btn, SIGNAL(clicked()), this, SLOT(slotLowerECAMButton())));
-    MYASSERT(connect(pfd_right_btn, SIGNAL(clicked()), this, SLOT(slotPFDRightButton())));
-    MYASSERT(connect(nd_right_btn, SIGNAL(clicked()), this, SLOT(slotNDRightButton())));
+    connect(pfd_right_btn, &QPushButton::clicked, this, &FMCConsole::slotPFDRightButton);
+    connect(nd_right_btn, &QPushButton::clicked, this, &FMCConsole::slotNDRightButton);
 
     // setup config widget
     config_tab->clear();
@@ -155,9 +164,11 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
     registerConfigWidget("Main", m_main_config);
 #endif
 
+return;
+
     // setup FMC control
     m_fmc_control = new FMCControl(this, m_main_config, CFG_CONTROL_FILENAME);
-    MYASSERT(m_fmc_control != 0);
+    MYASSERT(m_fmc_control != nullptr);
     MYASSERT(connect(m_fmc_control, SIGNAL(signalSetGLFontSize(uint)), this, SLOT(slotSetGLFontSize(uint))));
     MYASSERT(connect(m_fmc_control, SIGNAL(signalStyleA()), this, SLOT(slotStyleA())));
     MYASSERT(connect(m_fmc_control, SIGNAL(signalStyleB()), this, SLOT(slotStyleB())));
@@ -168,57 +179,57 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
 
     // setup FMC sounds
     m_fmc_sounds_handler = new FMCSoundsHandler(m_main_config, m_fmc_control);
-    MYASSERT(m_fmc_sounds_handler != 0);
+    MYASSERT(m_fmc_sounds_handler != nullptr);
 
     // setup FMC GPS
     m_gps_handler = new FMCGPSHandler(this, m_main_config, CFG_GPS_FILENAME, m_fmc_control);
-    MYASSERT(m_gps_handler != 0);
+    MYASSERT(m_gps_handler != nullptr);
 
     // setup FMC FCU
     m_fcu_handler = new FMCFCUHandler(this, m_main_config, CFG_FCU_FILENAME, m_fmc_control);
-    MYASSERT(m_fcu_handler != 0);
+    MYASSERT(m_fcu_handler != nullptr);
 
     // setup left FMC CDU
     m_cdu_left_handler = new FMCCDUHandler(this, m_main_config, CFG_CDU_LEFT_FILENAME, m_fmc_control, true);
-    MYASSERT(m_cdu_left_handler != 0);
+    MYASSERT(m_cdu_left_handler != nullptr);
 
     // setup left NAV display
     m_navdisplay_left_handler = new FMCNavdisplayHandler(
         this, m_main_config, CFG_NAVDISPLAY_LEFT_FILENAME, CFG_TCAS_FILENAME, m_fmc_control, true);
-    MYASSERT(m_navdisplay_left_handler != 0);
+    MYASSERT(m_navdisplay_left_handler != nullptr);
 
     // setup left PFD display
     m_pfd_left_handler = new FMCPFDHandler(
         this, m_main_config, CFG_PFD_LEFT_FILENAME, m_fmc_control, true);
-    MYASSERT(m_pfd_left_handler != 0);
+    MYASSERT(m_pfd_left_handler != nullptr);
 
 #if !VASFMC_GAUGE
     // setup right NAV display
     m_navdisplay_right_handler = new FMCNavdisplayHandler(
         this, m_main_config, CFG_NAVDISPLAY_RIGHT_FILENAME, CFG_TCAS_FILENAME, m_fmc_control, false);
-    MYASSERT(m_navdisplay_right_handler != 0);
+    MYASSERT(m_navdisplay_right_handler != nullptr);
 
     // setup right PFD display
     m_pfd_right_handler = new FMCPFDHandler(
         this, m_main_config, CFG_PFD_RIGHT_FILENAME, m_fmc_control, false);
-    MYASSERT(m_pfd_right_handler != 0);
+    MYASSERT(m_pfd_right_handler != nullptr);
 
     // setup right FMC CDU
     m_cdu_right_handler = new FMCCDUHandler(this, m_main_config, CFG_CDU_RIGHT_FILENAME, m_fmc_control, false);
-    MYASSERT(m_cdu_right_handler != 0);
+    MYASSERT(m_cdu_right_handler != nullptr);
 #endif
 
     // setup upper ECAM display
     m_upper_ecam_handler = new FMCECAMHandler(
         true, this, m_main_config, CFG_UPPER_ECAM_FILENAME, m_fmc_control);
-    MYASSERT(m_upper_ecam_handler != 0);
+    MYASSERT(m_upper_ecam_handler != nullptr);
 
     // create menus
     createMenus();
 
 #if !VASFMC_GAUGE
     // setup splash timer
-    if (m_splash != 0) QTimer::singleShot(SPLASH_SHOW_TIME_MS, this, SLOT(slotDeleteSplashscreen()));
+    if (m_splash != nullptr) QTimer::singleShot(SPLASH_SHOW_TIME_MS, this, SLOT(slotDeleteSplashscreen()));
 #endif
 
 
@@ -604,14 +615,16 @@ void FMCConsole::closeEvent(QCloseEvent* event )
 
 void FMCConsole::setupDefaultConfig()
 {
-    MYASSERT(m_main_config != 0);
+    MYASSERT(m_main_config != nullptr);
 
     saveWindowGeometry();
 
 #if VASFMC_GAUGE
-    m_main_config->setValue(CFG_VASFMC_DIR, VasPath::getPath());
+    //m_main_config->setValue(CFG_VASFMC_DIR, VasPath::getPath());
+    m_main_config->setValue(CFG_SHOWSPLASH, 0);
 #else
-    m_main_config->setValue(CFG_VASFMC_DIR, QDir::current().absolutePath());
+    //m_main_config->setValue(CFG_VASFMC_DIR, VasPath::getUserDataPath());
+    m_main_config->setValue(CFG_SHOWSPLASH, 1);
 #endif
 
     m_main_config->setValue(CFG_STYLE, CFG_STYLE_A);
@@ -632,9 +645,11 @@ void FMCConsole::setupDefaultConfig()
     m_main_config->setValue(CFG_FONT_SIZE8, 24);
     m_main_config->setValue(CFG_FONT_SIZE9, 32);
     m_main_config->setValue(CFG_ASK_FOR_QUIT, 0);
+
     m_main_config->setValue(CFG_FLIGHTPLAN_SUBDIR, "fps");
     m_main_config->setValue(CFG_AIRCRAFT_DATA_SUBDIR, "aircraft_data");
     m_main_config->setValue(CFG_CHECKLIST_SUBDIR, "checklists");
+
     m_main_config->setValue(CFG_GEODATA_FILE, "gshhs/gshhs_l.b");
     m_main_config->setValue(CFG_GEODATA_FILTER_LEVEL, 1);
     m_main_config->setValue(CFG_DECLINATION_DATAFILE, "WMM2005.cof");
