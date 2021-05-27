@@ -67,6 +67,9 @@ void signalHandler(int signal_nr)
 
 int main(int argc, char **argv)
 {
+    QApplication app(argc, argv);
+    QApplication::setApplicationName("vasFMC");
+
     if (!VasPath::checkUserDataPath()) {
         Logger::log("Error: Can't create user data dir.");
         return 2;
@@ -74,8 +77,8 @@ int main(int argc, char **argv)
 
     Logger::getLogger()->setLogFile(VasPath::prependPath(CFG_LOGFILE_NAME));
     Logger::log("     ----- Startup -----");
+
     qInstallMessageHandler(myMessageOutput);
-    QApplication app(argc, argv);
 
     // setup console
     auto console = new FMCConsole(nullptr, nullptr);

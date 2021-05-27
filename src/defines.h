@@ -97,7 +97,7 @@
 #define SPLASHSCREEN_FILE "graphics/vasfmc-splash.png"
 #define SPLASH_SHOW_TIME_MS 3000
 #define CFG_FLIGHTPLAN_SUBDIR "flightplan_subdir"
-#define CFG_AIRCRAFT_DATA_SUBDIR "aircraft_data_subdir"
+#define CFG_AIRCRAFT_DATA_SUBDIR "aircraft_data"
 #define CFG_AIRCRAFT_DATA_EXTENSION ".cfg"
 #define CFG_FLIGHTPLAN_EXTENSION ".fmc"
 #define CFG_GEODATA_FILE "geodata_file"

@@ -82,39 +82,39 @@ const static QChar AIRWAY_WAYPOINT_SEPARATOR = '.';
 FMCControl::FMCControl(ConfigWidgetProvider* config_widget_provider,
                        Config* cfg,
                        const QString& control_cfg_filename) :
-    m_gl_font(0), m_config_widget_provider(config_widget_provider), m_main_config(cfg),
-    m_fmc_data(0), m_flight_mode_tracker(0), m_fmc_sounds_handler(0),
+    m_gl_font(nullptr), m_config_widget_provider(config_widget_provider), m_main_config(cfg),
+    m_fmc_data(nullptr), m_flight_mode_tracker(nullptr), m_fmc_sounds_handler(nullptr),
     m_flightstatus(new FlightStatus(cfg->getIntValue(CFG_FLIGHTSTATUS_SMOOTHING_DELAY_MS))),
-    m_fs_access(0), m_flight_status_checker(0), m_last_flight_status_checker_style(-1),
-    m_navdata(0), m_pbd_counter(0), m_declination_calc(cfg->getValue(CFG_DECLINATION_DATAFILE)),
+    m_fs_access(nullptr), m_flight_status_checker(nullptr), m_last_flight_status_checker_style(-1),
+    m_navdata(nullptr), m_pbd_counter(0), m_declination_calc(cfg->getValue(CFG_DECLINATION_DATAFILE)),
     m_aircraft_data(new AircraftData(m_flightstatus)), m_aircraft_data_confirmed(false),
-    m_checklist_manager(0), m_pfd_left_handler(0), m_pfd_right_handler(0), m_nd_left_handler(0), m_nd_right_handler(0), 
-    m_gps_handler(0), m_fcu_handler(0), m_cdu_left_handler(0), m_cdu_right_handler(0), m_upper_ecam_handler(0),
+    m_checklist_manager(0), m_pfd_left_handler(0), m_pfd_right_handler(0), m_nd_left_handler(0), m_nd_right_handler(nullptr),
+    m_gps_handler(0), m_fcu_handler(0), m_cdu_left_handler(nullptr), m_cdu_right_handler(0), m_upper_ecam_handler(nullptr),
     m_pushback_start_heading(-1), m_pushback_dist_before_turn_m(0), m_pushback_turn_direction_clockwise(false),
-    m_pushback_turn_degrees(0), m_pushback_dist_after_turn_m(0), m_cpflight_serial(0), m_iocp_server(0),
+    m_pushback_turn_degrees(0), m_pushback_dist_after_turn_m(0), m_cpflight_serial(nullptr), m_iocp_server(0),
     m_is_irs_aligned(false), m_missed_approach_visible_on_cdu_left(false), m_missed_approach_visible_on_cdu_right(false),
-    m_fmc_connect_slave_tcp_client(0), m_fmc_connect_master_tcp_server(0),
-    m_adf1_noise_generator(0), m_adf2_noise_generator(0), m_vor1_noise_generator(0), m_vor2_noise_generator(0),
-    m_ils1_noise_generator(0), m_ils2_noise_generator(0), m_noise_calc_index(0)
+    m_fmc_connect_slave_tcp_client(0), m_fmc_connect_master_tcp_server(nullptr),
+    m_adf1_noise_generator(0), m_adf2_noise_generator(nullptr), m_vor1_noise_generator(nullptr), m_vor2_noise_generator(nullptr),
+    m_ils1_noise_generator(0), m_ils2_noise_generator(nullptr), m_noise_calc_index(0)
 {
-    MYASSERT(m_config_widget_provider != 0);
-    MYASSERT(m_main_config != 0);
-    MYASSERT(m_flightstatus != 0);
+    MYASSERT(m_config_widget_provider != nullptr);
+    MYASSERT(m_main_config != nullptr);
+    MYASSERT(m_flightstatus != nullptr);
     m_sbox_transponder_timer.start();
     m_date_time_sync_timer.start();
-    MYASSERT(Declination::globalDeclination() != 0);
-    MYASSERT(m_aircraft_data != 0);
+    MYASSERT(Declination::globalDeclination() != nullptr);
+    MYASSERT(m_aircraft_data != nullptr);
     m_fmc_connect_master_mode_sync_timer.start();
 
     m_fmc_data = new FMCData(cfg, m_flightstatus);
-    MYASSERT(m_fmc_data != 0);
+    MYASSERT(m_fmc_data != nullptr);
 
     m_flight_mode_tracker = new FlightModeTracker(m_flightstatus, m_fmc_data);
-    MYASSERT(m_flight_mode_tracker != 0);
+    MYASSERT(m_flight_mode_tracker != nullptr);
 
     m_checklist_manager = new ChecklistManager(
-        m_main_config->getValue(CFG_VASFMC_DIR) + "/" + m_main_config->getValue(CFG_CHECKLIST_SUBDIR) + "/");
-    MYASSERT(m_checklist_manager != 0);
+            VasPath::prependPath(CFG_CHECKLIST_SUBDIR) + "/");
+    MYASSERT(m_checklist_manager != nullptr);
 
     // setup config
 
@@ -361,10 +361,10 @@ bool FMCControl::loadAircraftData(const QString& filename)
 {
     //TODOm_aircraft_data->writeToFile(m_main_config->getValue(CFG_AIRCRAFT_DATA_SUBDIR) + "/" + "default.cfg");
 
-    if (!m_aircraft_data->readFromFile(m_main_config->getValue(CFG_AIRCRAFT_DATA_SUBDIR) + "/" + filename))
-    {
-        Logger::log(QString("FMCControl: could not load aircraft data (%1/%2)").
-                    arg(m_main_config->getValue(CFG_AIRCRAFT_DATA_SUBDIR)).arg(filename));
+    QString filePath = aircraftDataPath() + filename;
+
+    if (!m_aircraft_data->readFromFile(filePath)) {
+        Logger::log(QString("FMCControl: could not load aircraft data (%1)").arg(filePath));
         return false;
     }
 
@@ -378,9 +378,8 @@ bool FMCControl::loadAircraftData(const QString& filename)
 
 /////////////////////////////////////////////////////////////////////////////
 
-const QString FMCControl::aircraftDataPath() const
-{
-    return m_main_config->getValue(CFG_VASFMC_DIR) + "/" + m_main_config->getValue(CFG_AIRCRAFT_DATA_SUBDIR) + "/";
+const QString FMCControl::aircraftDataPath() const {
+    return VasPath::prependPath(CFG_AIRCRAFT_DATA_SUBDIR) + "/";
 }
 
 /////////////////////////////////////////////////////////////////////////////

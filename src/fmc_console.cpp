@@ -79,7 +79,8 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
 
     // setup main config
     Logger::log("Setup main config");
-    m_main_config = new Config(CFG_MAIN_FILENAME);
+    QString mainCfgFile = VasPath::prependPath(CFG_MAIN_FILENAME);
+    m_main_config = new Config(mainCfgFile);
     bool res = m_main_config->loadfromFile();
     if (!res) {
         setupDefaultConfig();
@@ -108,7 +109,7 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
     QDir vasfmc_dir(VasPath::getUserDataPath());
     res = vasfmc_dir.mkpath("cfg");
     if (res) res = vasfmc_dir.mkpath(m_main_config->getValue(CFG_FLIGHTPLAN_SUBDIR));
-    if (res) res = vasfmc_dir.mkpath(m_main_config->getValue(CFG_AIRCRAFT_DATA_SUBDIR));
+    if (res) res = vasfmc_dir.mkpath(CFG_AIRCRAFT_DATA_SUBDIR);
     if (res) res = vasfmc_dir.mkpath(m_main_config->getValue(CFG_CHECKLIST_SUBDIR));
     if (!res) {
         Logger::log(QString("FMCConsole: Can't create user data dirs"));
@@ -164,7 +165,6 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
     registerConfigWidget("Main", m_main_config);
 #endif
 
-return;
 
     // setup FMC control
     m_fmc_control = new FMCControl(this, m_main_config, CFG_CONTROL_FILENAME);
@@ -176,6 +176,8 @@ return;
     MYASSERT(connect(m_fmc_control, SIGNAL(signalFcuLeftOnlyModeChanged()), this, SLOT(slotFcuLeftOnlyModeChanged())));
     MYASSERT(connect(m_fmc_control, SIGNAL(signalRestartFMC()), this, SLOT(slotTriggerRestartFMC())));
     MYASSERT(connect(m_fmc_control, SIGNAL(signalRestartCDU()), this, SLOT(slotTriggerRestartCDU())));
+
+return;
 
     // setup FMC sounds
     m_fmc_sounds_handler = new FMCSoundsHandler(m_main_config, m_fmc_control);
@@ -647,7 +649,7 @@ void FMCConsole::setupDefaultConfig()
     m_main_config->setValue(CFG_ASK_FOR_QUIT, 0);
 
     m_main_config->setValue(CFG_FLIGHTPLAN_SUBDIR, "fps");
-    m_main_config->setValue(CFG_AIRCRAFT_DATA_SUBDIR, "aircraft_data");
+//    m_main_config->setValue(CFG_AIRCRAFT_DATA_SUBDIR, "aircraft_data");
     m_main_config->setValue(CFG_CHECKLIST_SUBDIR, "checklists");
 
     m_main_config->setValue(CFG_GEODATA_FILE, "gshhs/gshhs_l.b");
