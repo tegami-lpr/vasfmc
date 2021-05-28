@@ -70,9 +70,15 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
     QApplication::setApplicationName("vasFMC");
 
-    if (!VasPath::checkUserDataPath()) {
-        Logger::log("Error: Can't create user data dir.");
-        return 2;
+    VasPath::checkStanalone();
+
+    if (!VasPath::isStandalone()) {
+        if (!VasPath::checkUserDataPath()) {
+            Logger::log("Error: Can't create user data dir.");
+            return 2;
+        }
+    } else {
+        VasPath::setPath(VasPath::getAppDataPath());
     }
 
     Logger::getLogger()->setLogFile(VasPath::prependPath(CFG_LOGFILE_NAME));

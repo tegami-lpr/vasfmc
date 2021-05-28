@@ -24,8 +24,11 @@
 
 #include <QFile>
 
+#include <vas_path.h>
+
 #include "fmc_sounds_handler.h"
 #include "fmc_sounds.h"
+
 
 #include "checklist.h"
 
@@ -40,11 +43,20 @@ const ChecklistItem& Checklist::item(int index) const
 
 /////////////////////////////////////////////////////////////////////////////
 
+ChecklistManager::ChecklistManager() {
+    m_fmc_sounds_handler = nullptr;
+    m_current_checklist_index = -1;
+}
+
+ChecklistManager::~ChecklistManager() = default;
+
+/////////////////////////////////////////////////////////////////////////////
+
 void Checklist::incItemIndex() 
 {
     if (!isAtLastItem() && 
-        m_fmc_sounds_handler != 0 &&
-        m_fmc_sounds_handler->fmcSounds() != 0 &&
+        m_fmc_sounds_handler != nullptr &&
+        m_fmc_sounds_handler->fmcSounds() != nullptr &&
         !item(m_current_item_index+1).checkSoundfile().isEmpty())
     {
         m_fmc_sounds_handler->fmcSounds()->addSoundToQueueDirectly(
@@ -73,8 +85,8 @@ bool ChecklistManager::loadFromFile(const QString& filename)
     clear();
 
     //----- open the file
+    QString full_filename = VasPath::prependPath(QString(CFG_CHECKLIST_SUBDIR) + "/" + filename);
 
-    QString full_filename = m_base_dir + "/" + filename;
     QFile file(full_filename);
     if (!file.open(QIODevice::ReadOnly)) 
     {

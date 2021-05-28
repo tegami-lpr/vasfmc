@@ -204,7 +204,7 @@ public:
     PitchController* pitchController() const { return m_pitch_controller; }
 
     const AircraftData& aircraftData() const { return *m_aircraft_data; }
-    const QString aircraftDataPath() const;
+    QString aircraftDataPath() const;
     bool loadAircraftData(const QString& filename);
 
     const ChecklistManager& checklistManager() const { return *m_checklist_manager; }

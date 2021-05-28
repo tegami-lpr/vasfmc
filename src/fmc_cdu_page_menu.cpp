@@ -470,7 +470,7 @@ void FMCCDUPageStyleAMenu::paintPage(QPainter& painter) const
             drawTextLeft(painter, 1, 3, QString("%1 M").arg(m_pushback_dist_before_turn_m), CYAN);
             drawTextLeft(painter, 1, 5, 
                          m_pushback_turn_direction_clockwise ? "<- CLOCKWISE" : "<- COUNTER CLOCKWISE", CYAN);
-            drawTextLeft(painter, 1, 7, QString("%1 °").arg(m_pushback_turn_degrees), CYAN);
+            drawTextLeft(painter, 1, 7, QString("%1 ï¿½").arg(m_pushback_turn_degrees), CYAN);
             drawTextLeft(painter, 1, 9, QString("%1 M").arg(m_pushback_dist_after_turn_m), CYAN);
 
             if (m_flightstatus->pushback_status == FSAccess::PUSHBACK_STOP)

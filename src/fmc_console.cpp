@@ -79,8 +79,7 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
 
     // setup main config
     Logger::log("Setup main config");
-    QString mainCfgFile = VasPath::prependPath(CFG_MAIN_FILENAME);
-    m_main_config = new Config(mainCfgFile);
+    m_main_config = new Config(CFG_MAIN_FILENAME);
     bool res = m_main_config->loadfromFile();
     if (!res) {
         setupDefaultConfig();
@@ -108,9 +107,9 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
     // create necessary dirs
     QDir vasfmc_dir(VasPath::getUserDataPath());
     res = vasfmc_dir.mkpath("cfg");
-    if (res) res = vasfmc_dir.mkpath(m_main_config->getValue(CFG_FLIGHTPLAN_SUBDIR));
+    if (res) res = vasfmc_dir.mkpath(CFG_FLIGHTPLAN_SUBDIR);
     if (res) res = vasfmc_dir.mkpath(CFG_AIRCRAFT_DATA_SUBDIR);
-    if (res) res = vasfmc_dir.mkpath(m_main_config->getValue(CFG_CHECKLIST_SUBDIR));
+    if (res) res = vasfmc_dir.mkpath(CFG_CHECKLIST_SUBDIR);
     if (!res) {
         Logger::log(QString("FMCConsole: Can't create user data dirs"));
         MYASSERT(false);
@@ -168,7 +167,6 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
 
     // setup FMC control
     m_fmc_control = new FMCControl(this, m_main_config, CFG_CONTROL_FILENAME);
-    MYASSERT(m_fmc_control != nullptr);
     MYASSERT(connect(m_fmc_control, SIGNAL(signalSetGLFontSize(uint)), this, SLOT(slotSetGLFontSize(uint))));
     MYASSERT(connect(m_fmc_control, SIGNAL(signalStyleA()), this, SLOT(slotStyleA())));
     MYASSERT(connect(m_fmc_control, SIGNAL(signalStyleB()), this, SLOT(slotStyleB())));
@@ -177,28 +175,21 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
     MYASSERT(connect(m_fmc_control, SIGNAL(signalRestartFMC()), this, SLOT(slotTriggerRestartFMC())));
     MYASSERT(connect(m_fmc_control, SIGNAL(signalRestartCDU()), this, SLOT(slotTriggerRestartCDU())));
 
-return;
-
     // setup FMC sounds
     m_fmc_sounds_handler = new FMCSoundsHandler(m_main_config, m_fmc_control);
-    MYASSERT(m_fmc_sounds_handler != nullptr);
 
     // setup FMC GPS
     m_gps_handler = new FMCGPSHandler(this, m_main_config, CFG_GPS_FILENAME, m_fmc_control);
-    MYASSERT(m_gps_handler != nullptr);
 
     // setup FMC FCU
     m_fcu_handler = new FMCFCUHandler(this, m_main_config, CFG_FCU_FILENAME, m_fmc_control);
-    MYASSERT(m_fcu_handler != nullptr);
 
     // setup left FMC CDU
     m_cdu_left_handler = new FMCCDUHandler(this, m_main_config, CFG_CDU_LEFT_FILENAME, m_fmc_control, true);
-    MYASSERT(m_cdu_left_handler != nullptr);
 
     // setup left NAV display
     m_navdisplay_left_handler = new FMCNavdisplayHandler(
         this, m_main_config, CFG_NAVDISPLAY_LEFT_FILENAME, CFG_TCAS_FILENAME, m_fmc_control, true);
-    MYASSERT(m_navdisplay_left_handler != nullptr);
 
     // setup left PFD display
     m_pfd_left_handler = new FMCPFDHandler(
@@ -631,7 +622,6 @@ void FMCConsole::setupDefaultConfig()
 
     m_main_config->setValue(CFG_STYLE, CFG_STYLE_A);
     m_main_config->setValue(CFG_CONSOLE_MAX_LOGLINES, "500");
-    m_main_config->setValue(CFG_PERSISTANCE_FILE, "persistence.dat");
     m_main_config->setValue(CFG_ENABLE_CONFIG_ACCESS, 0);
     m_main_config->setValue(CFG_BEST_ANTI_ALIASING, 1);
     m_main_config->setValue(CFG_FONT_NAME, "fmc.fnt");

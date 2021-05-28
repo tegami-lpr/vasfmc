@@ -124,13 +124,10 @@ class ChecklistManager
 {
 public:
     //! Standard Constructor
-    ChecklistManager(const QString& checklist_base_dir) :
-        m_base_dir(checklist_base_dir), m_fmc_sounds_handler(0), m_current_checklist_index(-1) 
-    {
-    }
+    ChecklistManager();
 
     //! Destructor
-    virtual ~ChecklistManager() {}
+    ~ChecklistManager();
 
     //-----
 
@@ -192,7 +189,6 @@ public:
 
 protected:
                                 
-    QString m_base_dir;
     FMCSoundsHandler* m_fmc_sounds_handler;
     QList<Checklist> m_checklist_list;
     Checklist m_empty_checklist;

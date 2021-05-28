@@ -57,9 +57,9 @@ FMCCDUStyleA::FMCCDUStyleA(ConfigWidgetProvider* config_widget_provider,
                            Qt::WindowFlags fl,
                            bool left_side) :
     FMCCDUStyleBase("A", config_widget_provider, main_config, cdu_config_filename, fmc_control, parent, fl, left_side), 
-    m_page_manager(0)
+    m_page_manager(nullptr)
 {
-    MYASSERT(fmc_control != 0);
+    MYASSERT(fmc_control != nullptr);
 #if !VASFMC_GAUGE
     setupUi(this);
     (m_left_side) ? setWindowTitle("MCDU left") : setWindowTitle("MCDU right");
@@ -71,12 +71,9 @@ FMCCDUStyleA::FMCCDUStyleA(ConfigWidgetProvider* config_widget_provider,
 #endif
 
     // setup page manager
-
     m_page_manager = new FMCCDUPageManagerStyleA(m_cdu_config, m_fmc_control, left_side);
-    MYASSERT(m_page_manager != 0);
 
     // set to display only mode when configured
-    
     if (m_fmc_control->cduDisplayOnlyMode())
     {
 #if !VASFMC_GAUGE
@@ -84,8 +81,7 @@ FMCCDUStyleA::FMCCDUStyleA(ConfigWidgetProvider* config_widget_provider,
         setMinimumSize(QSize(0, 0));
         setMaximumSize(QSize(16777215, 16777215));
         display->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        QGridLayout* new_layout = new QGridLayout(this);
-        MYASSERT(new_layout != 0);
+        auto new_layout = new QGridLayout(this);
         new_layout->setHorizontalSpacing(0);
         new_layout->setVerticalSpacing(0);
         new_layout->setContentsMargins(0,0,0,0);
@@ -97,8 +93,8 @@ FMCCDUStyleA::FMCCDUStyleA(ConfigWidgetProvider* config_widget_provider,
     else
     {
         // setup background image
-        
-        QPixmap background_image(VasPath::prependPath(m_cdu_config->getValue(CFG_CDU_BACKGROUND_IMAGE)));
+        QString imagePath = VasPath::prependPath(m_cdu_config->getValue(CFG_CDU_BACKGROUND_IMAGE));
+        QPixmap background_image(imagePath);
         m_background_image = background_image;
         
         if (!m_background_image.isNull())

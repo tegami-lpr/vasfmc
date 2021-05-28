@@ -88,22 +88,25 @@ FMCControl::FMCControl(ConfigWidgetProvider* config_widget_provider,
     m_fs_access(nullptr), m_flight_status_checker(nullptr), m_last_flight_status_checker_style(-1),
     m_navdata(nullptr), m_pbd_counter(0), m_declination_calc(cfg->getValue(CFG_DECLINATION_DATAFILE)),
     m_aircraft_data(new AircraftData(m_flightstatus)), m_aircraft_data_confirmed(false),
-    m_checklist_manager(0), m_pfd_left_handler(0), m_pfd_right_handler(0), m_nd_left_handler(0), m_nd_right_handler(nullptr),
-    m_gps_handler(0), m_fcu_handler(0), m_cdu_left_handler(nullptr), m_cdu_right_handler(0), m_upper_ecam_handler(nullptr),
+    m_checklist_manager(nullptr), m_pfd_left_handler(nullptr), m_pfd_right_handler(0), m_nd_left_handler(0), m_nd_right_handler(nullptr),
+    m_gps_handler(nullptr), m_fcu_handler(0), m_cdu_left_handler(nullptr), m_cdu_right_handler(0), m_upper_ecam_handler(nullptr),
     m_pushback_start_heading(-1), m_pushback_dist_before_turn_m(0), m_pushback_turn_direction_clockwise(false),
     m_pushback_turn_degrees(0), m_pushback_dist_after_turn_m(0), m_cpflight_serial(nullptr), m_iocp_server(0),
     m_is_irs_aligned(false), m_missed_approach_visible_on_cdu_left(false), m_missed_approach_visible_on_cdu_right(false),
     m_fmc_connect_slave_tcp_client(0), m_fmc_connect_master_tcp_server(nullptr),
     m_adf1_noise_generator(0), m_adf2_noise_generator(nullptr), m_vor1_noise_generator(nullptr), m_vor2_noise_generator(nullptr),
-    m_ils1_noise_generator(0), m_ils2_noise_generator(nullptr), m_noise_calc_index(0)
+    m_ils1_noise_generator(0), m_ils2_noise_generator(nullptr), m_noise_calc_index(0), m_stop_bushback(false)
 {
     MYASSERT(m_config_widget_provider != nullptr);
     MYASSERT(m_main_config != nullptr);
     MYASSERT(m_flightstatus != nullptr);
+
     m_sbox_transponder_timer.start();
     m_date_time_sync_timer.start();
+
     MYASSERT(Declination::globalDeclination() != nullptr);
     MYASSERT(m_aircraft_data != nullptr);
+
     m_fmc_connect_master_mode_sync_timer.start();
 
     m_fmc_data = new FMCData(cfg, m_flightstatus);
@@ -112,8 +115,7 @@ FMCControl::FMCControl(ConfigWidgetProvider* config_widget_provider,
     m_flight_mode_tracker = new FlightModeTracker(m_flightstatus, m_fmc_data);
     MYASSERT(m_flight_mode_tracker != nullptr);
 
-    m_checklist_manager = new ChecklistManager(
-            VasPath::prependPath(CFG_CHECKLIST_SUBDIR) + "/");
+    m_checklist_manager = new ChecklistManager();
     MYASSERT(m_checklist_manager != nullptr);
 
     // setup config
@@ -156,7 +158,7 @@ FMCControl::FMCControl(ConfigWidgetProvider* config_widget_provider,
         m_control_cfg->getDoubleValue(CFG_FBW_PITCH_NEG_LIMIT),
         m_control_cfg->getDoubleValue(CFG_FBW_PITCH_POS_LIMIT));
 
-    MYASSERT(m_pitch_controller != 0);
+    MYASSERT(m_pitch_controller != nullptr);
 
     // init aircraft data
 
@@ -166,7 +168,18 @@ FMCControl::FMCControl(ConfigWidgetProvider* config_widget_provider,
     // init navdata
 
     Logger::log("setup navdata");
-    m_navdata = new Navdata(CFG_NAVDATA_FILENAME, CFG_NAVDATA_INDEX_FILENAME);
+
+    QString navdataPath = VasPath::prependPath(QString(CFG_NAVDATA_DIR), VasPath::dpApp);
+
+    QString userCycleFilePath = VasPath::prependPath(QString(CFG_NAVDATA_DIR) + "/" + "cycle_info.txt", VasPath::dpUser);
+    QFileInfo info(userCycleFilePath);
+    if (info.exists()) {
+        navdataPath = VasPath::prependPath(QString(CFG_NAVDATA_DIR), VasPath::dpUser);
+    }
+
+
+
+    m_navdata = new Navdata(navdataPath, CFG_NAVDATA_INDEX_FILENAME);
     MYASSERT(m_navdata);
 
     // init flight status checker
@@ -175,9 +188,9 @@ FMCControl::FMCControl(ConfigWidgetProvider* config_widget_provider,
 
     // init geodata
     m_geodata = new GeoData;
-    MYASSERT(m_geodata != 0);
     m_geodata->setFilenames(QStringList(m_main_config->getValue(CFG_GEODATA_FILE)));
     m_geodata->readData(m_main_config->getIntValue(CFG_GEODATA_FILTER_LEVEL));
+
     MYASSERT(connect(m_geodata, SIGNAL(signalActiveRouteChanged()), this, SIGNAL(signalGeoDataChanged())));
 
     // init flightsim access
@@ -185,32 +198,25 @@ FMCControl::FMCControl(ConfigWidgetProvider* config_widget_provider,
 
     // init autopilot control
     m_fmc_autopilot = new FMCAutopilot(m_config_widget_provider, m_main_config, CFG_AUTOPILOT_FILENAME, this);
-    MYASSERT(m_fmc_autopilot != 0);
-
     // init autothrottle control
     m_fmc_autothrottle = new FMCAutothrottle(m_config_widget_provider, m_main_config, CFG_AUTOTHROTTLE_FILENAME, this);
-    MYASSERT(m_fmc_autothrottle != 0);
-
     // init processor
     m_fmc_processor = new FMCProcessor(m_config_widget_provider, CFG_PROCESSOR_FILENAME, this, m_navdata);
-    MYASSERT(m_fmc_processor != 0);
 
     // init fmc data
-
     MYASSERT(connect(m_fmc_data, SIGNAL(signalDataChanged(const QString&, bool, const QString&)),
                      this, SLOT(slotDataChanged(const QString&, bool, const QString&))));
 
     MYASSERT(connect(m_fmc_data, SIGNAL(signalApproachPhaseActivated()),
                      this, SLOT(slotApproachPhaseActivated())));
 
-    MYASSERT(projection() != 0);
+    MYASSERT(projection() != nullptr);
     m_fmc_data->normalRoute().setProjection(projection());
     m_fmc_data->alternateRoute().setProjection(projection());
     m_fmc_data->secondaryRoute().setProjection(projection());
     m_fmc_data->temporaryRoute().setProjection(projection());
 
     // setup central timer and refresh timers
-
     MYASSERT(connect(&m_central_timer, SIGNAL(timeout()), this, SLOT(slotCentralTimer())));
     m_central_timer.start(2);
 
@@ -236,8 +242,7 @@ FMCControl::FMCControl(ConfigWidgetProvider* config_widget_provider,
     MYASSERT(connect(&m_pushback_timer, SIGNAL(timeout()), this, SLOT(slotPushBackTimer())));
 
     // load persistant route
-
-    m_persistance_filename = m_main_config->getValue(CFG_VASFMC_DIR)+"/"+m_main_config->getValue(CFG_PERSISTANCE_FILE);
+    m_persistance_filename = VasPath::prependPath(CFG_PERSISTANCE_FILE);
     if (QFile::exists(m_persistance_filename))
         if (!m_fmc_data->normalRoute().loadFP(m_persistance_filename, &navdata()))
             Logger::log(QString("FMCControl: could not read persistance file (%1)").arg(m_persistance_filename));
@@ -265,34 +270,28 @@ FMCControl::FMCControl(ConfigWidgetProvider* config_widget_provider,
     m_adf1_noise_generator = new NoiseGenerator(m_control_cfg->getIntValue(CFG_NOISE_GENERATION_INTERVAL_MS),
                                                 m_control_cfg->getDoubleValue(CFG_ADF_NOISE_INC_LIMIT_DEG),
                                                 m_control_cfg->getDoubleValue(CFG_ADF_NOISE_LIMIT_DEG));
-    MYASSERT(m_adf1_noise_generator != 0);
 
     m_adf2_noise_generator = new NoiseGenerator(m_control_cfg->getIntValue(CFG_NOISE_GENERATION_INTERVAL_MS),
                                                 m_control_cfg->getDoubleValue(CFG_ADF_NOISE_INC_LIMIT_DEG),
                                                 m_control_cfg->getDoubleValue(CFG_ADF_NOISE_LIMIT_DEG));
-    MYASSERT(m_adf2_noise_generator != 0);
+
 
     m_vor1_noise_generator = new NoiseGenerator(m_control_cfg->getIntValue(CFG_NOISE_GENERATION_INTERVAL_MS),
                                                 m_control_cfg->getDoubleValue(CFG_VOR_NOISE_INC_LIMIT_DEG),
                                                 m_control_cfg->getDoubleValue(CFG_VOR_NOISE_LIMIT_DEG));
 
-    MYASSERT(m_vor1_noise_generator != 0);
-
     m_vor2_noise_generator = new NoiseGenerator(m_control_cfg->getIntValue(CFG_NOISE_GENERATION_INTERVAL_MS),
                                                 m_control_cfg->getDoubleValue(CFG_VOR_NOISE_INC_LIMIT_DEG),
                                                 m_control_cfg->getDoubleValue(CFG_VOR_NOISE_LIMIT_DEG));
-    MYASSERT(m_vor2_noise_generator != 0);
+
 
     m_ils1_noise_generator = new NoiseGenerator(m_control_cfg->getIntValue(CFG_NOISE_GENERATION_INTERVAL_MS),
                                                 m_control_cfg->getDoubleValue(CFG_ILS_NOISE_INC_LIMIT),
                                                 m_control_cfg->getDoubleValue(CFG_ILS_NOISE_LIMIT));
 
-    MYASSERT(m_ils1_noise_generator != 0);
-
     m_ils2_noise_generator = new NoiseGenerator(m_control_cfg->getIntValue(CFG_NOISE_GENERATION_INTERVAL_MS),
                                                 m_control_cfg->getDoubleValue(CFG_ILS_NOISE_INC_LIMIT),
                                                 m_control_cfg->getDoubleValue(CFG_ILS_NOISE_LIMIT));
-    MYASSERT(m_ils2_noise_generator != 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -378,8 +377,8 @@ bool FMCControl::loadAircraftData(const QString& filename)
 
 /////////////////////////////////////////////////////////////////////////////
 
-const QString FMCControl::aircraftDataPath() const {
-    return VasPath::prependPath(CFG_AIRCRAFT_DATA_SUBDIR) + "/";
+QString FMCControl::aircraftDataPath() const {
+    return QString(CFG_AIRCRAFT_DATA_SUBDIR) + "/";
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -613,9 +612,11 @@ void FMCControl::slotCentralTimer()
     //TODO implement load balancing
     slotControlTimer();
 
-    if (m_fmc_processor != 0) m_fmc_processor->slotRefresh(false);
-    if (m_cpflight_serial != 0) m_cpflight_serial->slotWriteValues(false);
-    if (m_fmc_sounds_handler->fmcSounds() != 0) m_fmc_sounds_handler->fmcSounds()->slotCheckSoundsTimer();
+    if (m_fmc_processor) m_fmc_processor->slotRefresh(false);
+    if (m_cpflight_serial) m_cpflight_serial->slotWriteValues(false);
+    if (m_fmc_sounds_handler) {
+        if (m_fmc_sounds_handler->fmcSounds() != nullptr) m_fmc_sounds_handler->fmcSounds()->slotCheckSoundsTimer();
+    }
 
     m_flight_mode_tracker->slotCheckAndSetFlightMode();
 
@@ -626,28 +627,28 @@ void FMCControl::slotCentralTimer()
         switch(m_fsctrl_poll_index)
         {
             case(0): {
-                if (m_pfd_left_handler != 0 && m_pfd_left_handler->fmcPFD() != 0) 
+                if (m_pfd_left_handler != nullptr && m_pfd_left_handler->fmcPFD() != nullptr)
                     m_pfd_left_handler->fmcPFD()->processFSControls();
-                if (m_pfd_right_handler != 0 && m_pfd_right_handler->fmcPFD() != 0) 
+                if (m_pfd_right_handler != nullptr && m_pfd_right_handler->fmcPFD() != nullptr)
                     m_pfd_right_handler->fmcPFD()->processFSControls();
                 break;
             }
             case(1): {
-                if (m_nd_left_handler != 0 && m_nd_left_handler->fmcNavdisplay() != 0) 
+                if (m_nd_left_handler != nullptr && m_nd_left_handler->fmcNavdisplay() != nullptr)
                     m_nd_left_handler->fmcNavdisplay()->processFSControls();
-                if (m_nd_right_handler != 0 && m_nd_right_handler->fmcNavdisplay() != 0) 
+                if (m_nd_right_handler != nullptr && m_nd_right_handler->fmcNavdisplay() != nullptr)
                     m_nd_right_handler->fmcNavdisplay()->processFSControls();
                 break;
             }
             case(2): {
-                if (m_upper_ecam_handler != 0 && m_upper_ecam_handler->fmcECAM() != 0)
+                if (m_upper_ecam_handler != nullptr && m_upper_ecam_handler->fmcECAM() != nullptr)
                     m_upper_ecam_handler->fmcECAM()->processFSControls();
                 break;
             }
             case(3): {
-                if (m_cdu_left_handler != 0 && m_cdu_left_handler->fmcCduBase() != 0) 
+                if (m_cdu_left_handler != nullptr && m_cdu_left_handler->fmcCduBase() != nullptr)
                     m_cdu_left_handler->fmcCduBase()->slotProcessInput();
-                if (m_cdu_right_handler != 0 && m_cdu_right_handler->fmcCduBase() != 0) 
+                if (m_cdu_right_handler != nullptr && m_cdu_right_handler->fmcCduBase() != nullptr)
                     m_cdu_right_handler->fmcCduBase()->slotProcessInput();
                 break;
             }
@@ -671,9 +672,9 @@ void FMCControl::slotCentralTimer()
         switch(m_cdufcu_refresh_index)
         {
             case(0): {
-                if (m_cdu_left_handler != 0 && m_cdu_left_handler->fmcCduBase() != 0) 
+                if (m_cdu_left_handler != nullptr && m_cdu_left_handler->fmcCduBase() != nullptr)
                     m_cdu_left_handler->fmcCduBase()->slotRefresh();
-                if (m_cdu_right_handler != 0 && m_cdu_right_handler->fmcCduBase() != 0) 
+                if (m_cdu_right_handler != nullptr && m_cdu_right_handler->fmcCduBase() != nullptr)
                     m_cdu_right_handler->fmcCduBase()->slotRefresh();
                 break;
             }
@@ -717,16 +718,16 @@ void FMCControl::slotCentralTimer()
         switch(m_pfdnd_refresh_index)
         {
             case(0): {
-                if (m_pfd_left_handler != 0 && m_pfd_left_handler->fmcPFD() != 0) 
+                if (m_pfd_left_handler != nullptr && m_pfd_left_handler->fmcPFD() != nullptr)
                     m_pfd_left_handler->fmcPFD()->slotRefresh();
-                if (m_pfd_right_handler != 0 &&m_pfd_right_handler->fmcPFD() != 0) 
+                if (m_pfd_right_handler != nullptr && m_pfd_right_handler->fmcPFD() != nullptr)
                     m_pfd_right_handler->fmcPFD()->slotRefresh();
                 break;
             }
             case(1): {
-                if (m_nd_left_handler != 0 && m_nd_left_handler->fmcNavdisplay() != 0)
+                if (m_nd_left_handler != nullptr && m_nd_left_handler->fmcNavdisplay() != nullptr)
                     m_nd_left_handler->fmcNavdisplay()->slotRefresh();
-                if (m_nd_right_handler != 0 && m_nd_right_handler->fmcNavdisplay() != 0) 
+                if (m_nd_right_handler != nullptr && m_nd_right_handler->fmcNavdisplay() != nullptr)
                     m_nd_right_handler->fmcNavdisplay()->slotRefresh();
                 break;
             }
@@ -740,7 +741,7 @@ void FMCControl::slotCentralTimer()
 
     if (m_ecam_refresh_timer.elapsed() >= m_ecam_refresh_ms)
     {
-        if (m_upper_ecam_handler != 0 && m_upper_ecam_handler->fmcECAM() != 0) m_upper_ecam_handler->fmcECAM()->slotRefresh();
+        if (m_upper_ecam_handler != nullptr && m_upper_ecam_handler->fmcECAM() != nullptr) m_upper_ecam_handler->fmcECAM()->slotRefresh();
         
         m_ecam_refresh_timer.start();
     }

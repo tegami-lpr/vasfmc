@@ -294,11 +294,11 @@ FMCCDUHandler::FMCCDUHandler(ConfigWidgetProvider* config_widget_provider,
                              bool left_side) :
     m_config_widget_provider(config_widget_provider),
     m_main_config(main_config), m_cdu_config_filename(cdu_config_filename), 
-    m_fmc_control(fmc_control), m_cdu(0), m_left_side(left_side)
+    m_fmc_control(fmc_control), m_cdu(nullptr), m_left_side(left_side)
 {
-    MYASSERT(m_config_widget_provider != 0);
-    MYASSERT(m_main_config != 0);
-    MYASSERT(m_fmc_control != 0);
+    MYASSERT(m_config_widget_provider != nullptr);
+    MYASSERT(m_main_config != nullptr);
+    MYASSERT(m_fmc_control != nullptr);
     slotRestartCdu();
     (m_left_side) ? fmc_control->setCDULeftHandler(this) : fmc_control->setCDURightHandler(this);
 }
@@ -314,15 +314,15 @@ FMCCDUStyleBase* FMCCDUHandler::createCdu()
 #if !VASFMC_GAUGE            
             if (m_fmc_control->doKeepOnTop())
                 return new FMCCDUStyleA(m_config_widget_provider, m_main_config, m_cdu_config_filename, 
-                                        m_fmc_control, 0, Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint, m_left_side);
+                                        m_fmc_control, nullptr, Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint, m_left_side);
             else
 #endif
                 return new FMCCDUStyleA(m_config_widget_provider, m_main_config, 
-                                        m_cdu_config_filename, m_fmc_control, 0, 0, m_left_side);
+                                        m_cdu_config_filename, m_fmc_control, nullptr, nullptr, m_left_side);
         }
     }
     
-    return 0;
+    return nullptr;
 }
 
 // End of file
