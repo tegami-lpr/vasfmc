@@ -42,11 +42,11 @@ public:
     FlightStatusCheckerStyleA(FlightStatus* flightstatus, const FMCControl* fmc_control);
 
     //! Destructor
-    virtual ~FlightStatusCheckerStyleA() {};
+    ~FlightStatusCheckerStyleA() override = default;;
 
     //-----
     
-    virtual void doChecks(FSAccess& fsaccess);
+    void doChecks(FSAccess& fsaccess) override;
 
 protected:
 

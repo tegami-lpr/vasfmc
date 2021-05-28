@@ -89,10 +89,10 @@ public:
                  FMCControl* fmc_control);
     
     //! Destructor
-    virtual ~FMCAutopilot();
+    ~FMCAutopilot() override;
 
-    virtual void operator<<(QDataStream& in);
-    virtual void operator>>(QDataStream& out) const;
+    void operator<<(QDataStream& in) override;
+    void operator>>(QDataStream& out) const override;
 
     //----- ILS mode
 

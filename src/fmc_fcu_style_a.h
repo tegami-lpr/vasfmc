@@ -59,7 +59,7 @@ public:
                  QWidget* parent,
                  Qt::WindowFlags fl);
        
-    virtual ~FMCFCUStyleA();
+    ~FMCFCUStyleA() override;
 
 #if VASFMC_GAUGE
     virtual void paintGauge(QPainter *pPainter);
@@ -67,7 +67,7 @@ public:
 
 public slots:
 
-    virtual void slotRefresh();
+    void slotRefresh() override;
 
 protected slots:
 
@@ -76,13 +76,13 @@ protected slots:
 
 protected:
 
-    bool eventFilter(QObject * watched_object, QEvent* event);
+    bool eventFilter(QObject * watched_object, QEvent* event) override;
 
-    void keyPressEvent(QKeyEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event) { m_input_area.slotMouseReleaseEvent(event); }
-    void mouseMoveEvent(QMouseEvent *event);
-    void wheelEvent(QWheelEvent* event);
+    void keyPressEvent(QKeyEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override { m_input_area.slotMouseReleaseEvent(event); }
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent* event) override;
 
     void resetBackgroundImage();
 

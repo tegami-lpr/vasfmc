@@ -57,7 +57,7 @@ FMCFCUStyleA::FMCFCUStyleA(ConfigWidgetProvider* config_widget_provider,
     m_alt_set_mode(ALT_SET_MODE_100FT), 
     m_last_range_left(-1), m_last_range_right(-1), m_last_mode_left(-1), m_last_mode_right(-1)    
 {
-    MYASSERT(fmc_control != 0);
+    MYASSERT(fmc_control != nullptr);
 #if !VASFMC_GAUGE
     setupUi(this);
     setWindowTitle("FCU");
@@ -409,20 +409,17 @@ void FMCFCUStyleA::slotInputMouseButton(const QString& text, QMouseEvent* event)
         m_fmc_control->fmcAutoPilot().setLOCHold();
     }
 
-    else if (text == FMC_FCU_INPUT_KNOB_SPD && event != 0)
+    else if (text == FMC_FCU_INPUT_KNOB_SPD && event != nullptr)
     {
-    	if (event->button() == Qt::LeftButton){
+    	if (event->button() == Qt::LeftButton) {
             //TODO managed speed
             m_fmc_control->fmcAutothrottle().engageAPThrottle();
-        }
-
-        else if (event->button() == Qt::RightButton)
-        {
+        } else if (event->button() == Qt::RightButton) {
             m_fmc_control->fmcAutothrottle().engageAPThrottle();
         }
     }
 
-    else if (text == FMC_FCU_INPUT_KNOB_SPD_LEFT && event != 0)
+    else if (text == FMC_FCU_INPUT_KNOB_SPD_LEFT && event != nullptr)
     {
         if (event->button() == Qt::LeftButton)
         {

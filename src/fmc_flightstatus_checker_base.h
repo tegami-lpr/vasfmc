@@ -46,7 +46,7 @@ public:
     FlightStatusCheckerBase(FlightStatus* flightstatus, const FMCControl* fmc_control);
 
     //! Destructor
-    virtual ~FlightStatusCheckerBase() {};
+    ~FlightStatusCheckerBase() override = default;;
 
     //-----
 

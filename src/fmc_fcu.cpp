@@ -51,14 +51,13 @@ FMCFCUStyleBase::FMCFCUStyleBase(const QString& style,
     m_config_widget_provider(config_widget_provider), 
     m_main_config(main_config), m_fmc_control(fmc_control)
 {
-    MYASSERT(m_config_widget_provider != 0);
-    MYASSERT(m_main_config != 0);
-    MYASSERT(m_fmc_control != 0);
+    MYASSERT(m_config_widget_provider != nullptr);
+    MYASSERT(m_main_config != nullptr);
+    MYASSERT(m_fmc_control != nullptr);
 
     // setup fcu config
 
     m_fcu_config = new Config(fcu_config_filename);
-    MYASSERT(m_fcu_config != 0);
     setupDefaultConfig(style);
     m_fcu_config->loadfromFile();
     loadWindowGeometry();
