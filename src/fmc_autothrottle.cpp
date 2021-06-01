@@ -199,7 +199,7 @@ void FMCAutothrottle::armAPThrottle()
     {
         Logger::log("FMCAutothrottle:armAPThrottle - FMC A/THR");
         m_fmc_control->fsAccess().setAutothrustArm(false);
-        m_autothrottle_config->setValue(CFG_AP_THROTTLE_ARMED, true);
+        m_autothrottle_config->setValue(CFG_AP_THROTTLE_ARMED, true);  
     }
     else
     {

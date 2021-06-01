@@ -36,6 +36,8 @@
 
 #include "ui_fmc_console.h"
 
+#include "fmcmessagebus.h"
+
 class FMCGPSHandler;
 class FMCFCUHandler;
 class FMCCDUHandler;
@@ -49,6 +51,7 @@ class QSplashScreen;
 class InfoDlgImpl;
 class OpenGLText;
 class QAction;
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -71,7 +74,7 @@ public:
     FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style = QString::null);
 
     //! Destructor
-    virtual ~FMCConsole();
+     virtual ~FMCConsole();
 
     virtual void registerConfigWidget(const QString& title, Config* cfg);
     virtual void unregisterConfigWidget(const QString& title);
@@ -94,6 +97,9 @@ public slots:
     void slotStyleG();
     void slotTriggerRestartFMC() { QTimer::singleShot(1, this, SLOT(slotRestartFMC())); }
     void slotTriggerRestartCDU() { QTimer::singleShot(1, this, SLOT(slotRestartCDU())); }
+
+    //! Slot for receiving messages from message bus
+    void ReceiveMessage(FMCMessage *message);
 
 protected slots:
 

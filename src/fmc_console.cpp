@@ -49,6 +49,8 @@
 
 #include "fmc_console.h"
 
+#include <fmcmessagebus.h>
+
 #define DO_PROFILING 0
 
 /////////////////////////////////////////////////////////////////////////////
@@ -74,6 +76,9 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
     m_quit_action(nullptr), m_fsaccess_msfs_action(nullptr), m_fsaccess_xplane_action(nullptr), m_fsaccess_fgfs_action(nullptr),
     m_style_a_action(nullptr), m_style_b_action(nullptr), m_style_g_action(nullptr)
 {
+    FMCMessageBus::GetInstance()->Subscribe(this, "FMCConsole");
+
+
     Logger::log(QString("FMCConsole: Application data path=%1").arg(VasPath::getAppDataPath()));
     Logger::log(QString("FMCConsole: User data path=%1").arg(VasPath::getUserDataPath()));
 
@@ -845,6 +850,12 @@ void FMCConsole::slotTimeUsed(const QString& name, uint millisecs)
     if (millisecs == 0) return;
     m_time_used_list.append(QString("%1: %2: %3").
                             arg(QDateTime::currentDateTime().time().toString("hh:mm:ss:zzz")).arg(name).arg(millisecs));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void FMCConsole::ReceiveMessage(FMCMessage *message) {
+
 }
 
 // End of file

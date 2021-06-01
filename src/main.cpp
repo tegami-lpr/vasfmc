@@ -29,6 +29,7 @@
 #include "vlassert.h"
 
 #include "fmc_console.h"
+#include "fmcmessagebus.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -85,6 +86,10 @@ int main(int argc, char **argv)
     Logger::log("     ----- Startup -----");
 
     qInstallMessageHandler(myMessageOutput);
+
+    // start message bus
+    FMCMessageBus::GetInstance()->Init();
+
 
     // setup console
     auto console = new FMCConsole(nullptr, nullptr);

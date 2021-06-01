@@ -38,6 +38,7 @@
 
 class ConfigWidgetProvider;
 class FMCControl;
+class FMCMessage;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +56,7 @@ public:
                     QWidget* parent,
                     Qt::WindowFlags fl);
        
-    virtual ~FMCFCUStyleBase();
+    ~FMCFCUStyleBase() override;
 
     inline Config* config() { return m_fcu_config; }
 
@@ -74,12 +75,15 @@ public slots:
 
     void slotProcessInput();
 
+    //! Slot for receiving messages from message bus
+    virtual void ReceiveMessage(FMCMessage *message);
+
 protected:
 
     void setupDefaultConfig(const QString& style);
     void loadWindowGeometry();
     void saveWindowGeometry();
-    virtual void keyPressEvent(QKeyEvent *event) = 0;
+    void keyPressEvent(QKeyEvent *event) override = 0;
 
 protected:
 
