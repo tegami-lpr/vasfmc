@@ -742,7 +742,8 @@ void FMCConsole::slotCDULeftButton()
 
 void FMCConsole::slotFCUButton()
 {
-    m_fcu_handler->isVisible() ? m_fcu_handler->hide() : m_fcu_handler->show();    
+    //m_fcu_handler->isVisible() ? m_fcu_handler->hide() : m_fcu_handler->show();
+    FMCMessageBus::PutMessage(new FMCMessage("FMCConsole", FCU_SWITCH_VISIBILITY));
 }
 
 /////////////////////////////////////////////////////////////////////////////

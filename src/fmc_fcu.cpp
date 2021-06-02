@@ -25,6 +25,7 @@
 #include <QMouseEvent>
 #include <QShortcut>
 #include <QKeyEvent>
+#include <fmcmessagebus.h>
 
 #include "vlassert.h"
 #include "logger.h"
@@ -169,7 +170,7 @@ void FMCFCUStyleBase::slotProcessInput()
 {
     while(!m_fmc_control->flightStatus()->fsctrl_fcu_list.isEmpty())
     {
-        QKeyEvent* key_event = 0;
+        QKeyEvent* key_event = nullptr;
 
         switch(m_fmc_control->flightStatus()->fsctrl_fcu_list.first())
         {
@@ -228,7 +229,7 @@ void FMCFCUStyleBase::slotProcessInput()
 #endif
         }
         
-        if (key_event != 0)
+        if (key_event != nullptr)
         {
             keyPressEvent(key_event);
             delete key_event;
@@ -254,14 +255,15 @@ FMCFCUHandler::FMCFCUHandler(ConfigWidgetProvider* config_widget_provider,
     m_config_widget_provider(config_widget_provider),
     m_main_config(main_config), m_fcu_config_filename(fcu_config_filename), m_fmc_control(fmc_control), m_fcu(0)
 {
-    MYASSERT(m_config_widget_provider != 0);
-    MYASSERT(m_main_config != 0);
-    MYASSERT(m_fmc_control != 0);
+    MYASSERT(m_config_widget_provider != nullptr);
+    MYASSERT(m_main_config != nullptr);
+    MYASSERT(m_fmc_control != nullptr);
     slotRestartFCU();
     fmc_control->setFCUHandler(this);
+    FMCMessageBus::Subscribe(this, "FMCFCUHandler");
 }
 
-/////////////////////////////////////////////////////////////////////////////
+//--------------------------------------------------------------------------------------------------------------------//
 
 FMCFCUStyleBase* FMCFCUHandler::createFcu()
 {
@@ -280,7 +282,43 @@ FMCFCUStyleBase* FMCFCUHandler::createFcu()
         }
     }
 
-    return 0;
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------------------------//
+
+
+void FMCFCUHandler::slotRestartFCU() {
+#if VASFMC_GAUGE
+    QMutexLocker locker(&m_fcu_mutex);
+#endif
+
+    delete m_fcu;
+    m_fcu = createFcu();
+    if (m_fcu == nullptr) return;
+    MYASSERT(connect(m_fcu, SIGNAL(signalRestart()), this, SLOT(slotTriggerFcuRestart())));
+}
+
+//--------------------------------------------------------------------------------------------------------------------//
+
+void FMCFCUHandler::ReceiveMessage(FMCMessage *message) {
+    switch (message->m_messageType) {
+        case FCU_HIDE:
+            hide();
+            break;
+        case FCU_SHOW:
+            show();
+            break;
+        case FCU_RESTART:
+            slotRestartFCU();
+            break;
+        case FCU_SWITCH_VISIBILITY:
+            if (isVisible()) hide();
+            else show();
+        default:
+            break;
+    }
+    delete message;
 }
 
 // End of file

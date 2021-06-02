@@ -115,17 +115,17 @@ public:
                   FMCControl* fmc_control);
     
     //! Destructor
-    virtual ~FMCFCUHandler()
+    ~FMCFCUHandler() override
     {
         delete m_fcu;
     }
     
-    inline void show() { if (m_fcu != 0) m_fcu->show(); }
-    inline void hide() { if (m_fcu != 0) m_fcu->hide(); }
+    inline void show() { if (m_fcu != nullptr) m_fcu->show(); }
+    inline void hide() { if (m_fcu != nullptr) m_fcu->hide(); }
 
     inline bool isVisible()
     {
-        if (m_fcu == 0) return false;
+        if (m_fcu == nullptr) return false;
         return m_fcu->isVisible(); 
     }
 
@@ -142,23 +142,16 @@ public:
 
 public slots:
 
-    void slotRestartFCU()
-    {
-#if VASFMC_GAUGE
-        QMutexLocker locker(&m_fcu_mutex);
-#endif
+    void slotRestartFCU();
 
-        delete m_fcu;
-        m_fcu = createFcu();
-        if (m_fcu == 0) return;
-        MYASSERT(connect(m_fcu, SIGNAL(signalRestart()), this, SLOT(slotTriggerFcuRestart())));
-    }
+    //! Slot for receiving messages from message bus
+    void ReceiveMessage(FMCMessage *message);
 
 protected slots:
 
     void slotTriggerFcuRestart()
     {
-        QTimer::singleShot(1, this, SLOT(slotRestartFcu()));
+        QMetaObject::invokeMethod(this, &FMCFCUHandler::slotRestartFCU, Qt::QueuedConnection);
     }
 
 protected:

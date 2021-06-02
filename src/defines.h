@@ -128,5 +128,10 @@
 
 #define FS_TIME_SYNC_MAX_DIFF_SEC 60
 
+#define FCU_SHOW 0x100
+#define FCU_HIDE 0x101
+#define FCU_SWITCH_VISIBILITY 0x102
+#define FCU_RESTART 0x103
+
 #endif
 
