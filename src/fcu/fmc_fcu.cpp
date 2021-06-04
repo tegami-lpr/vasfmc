@@ -168,6 +168,8 @@ void FMCFCUStyleBase::saveWindowGeometry()
 
 void FMCFCUStyleBase::slotProcessInput()
 {
+    //XXX: temporally disabled until rework
+    return;
     while(!m_fmc_control->flightStatus()->fsctrl_fcu_list.isEmpty())
     {
         QKeyEvent* key_event = nullptr;
