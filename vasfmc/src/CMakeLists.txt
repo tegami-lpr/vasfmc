@@ -13,7 +13,7 @@ set(QT_DEPS_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Multimedia Qt5::Networ
 
 find_package(OpenGL)
 
-find_package(vaslib REQUIRED)
+#find_package(vaslib REQUIRED)
 
 file(GLOB VASFMC_SOURCES fmc_data.cpp fmc_control.cpp fmc_autopilot.cpp fmc_autothrottle.cpp fmc_processor.cpp
         fmc_navdisplay.cpp fmc_navdisplay_glwidget.cpp fmc_navdisplay_style.cpp fmc_navdisplay_style_a.cpp
@@ -62,6 +62,7 @@ set_source_files_properties(${PROJECT_NAME}.rc PROPERTIES LANGUAGE RC)
 add_executable(${PROJECT_NAME} WIN32 ${VASFMC_UI} ${VASFMC_SOURCES} ${VASFMC_HEADER} ${GL_SOURCES} ${GL_HEADERS})
 target_link_libraries(${PROJECT_NAME} ${QT_DEPS_LIBRARIES} vaslib ${OPENGL_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/fcu)
+#target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../../vaslib/src ${CMAKE_CURRENT_LIST_DIR}/../../vaslib/src/messagebus)
 
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} ws2_32)

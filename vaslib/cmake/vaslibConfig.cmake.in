@@ -1,0 +1,13 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(Qt5Core REQUIRED)
+find_dependency(Qt5Gui REQUIRED)
+find_dependency(Qt5Network REQUIRED)
+find_dependency(Qt5Widgets REQUIRED)
+find_dependency(Qt5Xml REQUIRED)
+
+include("${CMAKE_CURRENT_LIST_DIR}/vaslibTargets.cmake")
+
+check_required_components(vaslib)
