@@ -4,16 +4,16 @@
 
 //--------------------------------------------------------------------------------------------------------------------//
 
-const QLatin1String ANY_RECV = QLatin1String("*");
+const std::string ANY_RECV = "*";
 
 FMCMessageBus *FMCMessageBus::m_instance = nullptr;
 
 //--------------------------------------------------------------------------------------------------------------------//
 
-FMCMessage::FMCMessage(QString sender, int32_t messageType) : FMCMessage (sender, messageType, ANY_RECV){
+FMCMessage::FMCMessage(const std::string &sender, int32_t messageType) : FMCMessage (sender, messageType, ANY_RECV){
 }
 
-FMCMessage::FMCMessage(QString sender, int32_t messageType, QString receiver) {
+FMCMessage::FMCMessage(const std::string &sender, int32_t messageType, const std::string &receiver) {
     m_sender = sender;
     m_messageType = messageType;
     m_receiver = receiver;
@@ -27,13 +27,13 @@ FMCMessage::FMCMessage(const FMCMessage &other) {
 
 //--------------------------------------------------------------------------------------------------------------------//
 
-QString FMCMessage::Sender() {
+std::string FMCMessage::Sender() {
     return m_sender;
 }
 
 //--------------------------------------------------------------------------------------------------------------------//
 
-QString FMCMessage::Receiver() {
+std::string FMCMessage::Receiver() {
     return m_receiver;
 }
 
@@ -85,26 +85,29 @@ void FMCMessageBus::PutMessage(FMCMessage *message) {
 
 //--------------------------------------------------------------------------------------------------------------------//
 
-void FMCMessageBus::Subscribe(QObject *subscriber, const QString& id) {
+void FMCMessageBus::Subscribe(FMCMessageReceiver *subscriber, const std::string& id) {
     auto messageBus = GetInstance();
-
-    //Check if subscriber has slot with proper signature
-    int idx = subscriber->metaObject()->indexOfSlot("ReceiveMessage(FMCMessage*)");
-    MYASSERT(idx != -1);
 
     std::lock_guard<std::mutex> lk(messageBus->m_subscribersMutex);
     for (const auto& item : messageBus->m_subscribers) {
         if (item.first == subscriber) return;
     }
-    messageBus->m_subscribers.append(qMakePair(subscriber, id));
+    messageBus->m_subscribers.insert_after(messageBus->m_subscribers.end(), make_pair(subscriber, id));
+}
 
-    //TODO: subscribe to subscriber::destroyed() signal to remove objects from list
+//--------------------------------------------------------------------------------------------------------------------//
+
+void FMCMessageBus::Unsubscribe(FMCMessageReceiver *subscriber) {
+    auto messageBus = GetInstance();
+
+    std::lock_guard<std::mutex> lk(messageBus->m_subscribersMutex);
+    messageBus->m_subscribers.remove_if([subscriber](const std::pair<FMCMessageReceiver*, std::string>& pair) {return (pair.first == subscriber);});
 }
 
 //--------------------------------------------------------------------------------------------------------------------//
 
 void FMCMessageBus::threadFunction() {
-    QList<QObject*> receivers;
+    std::forward_list<FMCMessageReceiver*> receivers;
     std::unique_lock<std::mutex> lck(m_subscribersMutex, std::defer_lock);
     do {
         if (m_breakThreadMutex.try_lock()) {
@@ -119,18 +122,19 @@ void FMCMessageBus::threadFunction() {
             lck.lock();
             for (const auto& item : m_subscribers) {
                 if (event->Receiver() == ANY_RECV) {
-                    receivers.append(item.first);
+                    receivers.insert_after(receivers.end(), item.first);
                     continue;
                 }
                 if (event->Receiver() != item.second) continue;
-                receivers.append(item.first);
+                receivers.insert_after(receivers.end(), item.first);
             }
             lck.unlock();
 
             for (auto receiver : receivers) {
                 //XXX: spawn many copy of message is bad design, but for start it ok...
                 auto tmpMsg = new FMCMessage(*event);
-                QMetaObject::invokeMethod(receiver, "ReceiveMessage", Qt::QueuedConnection, Q_ARG(FMCMessage*, tmpMsg));
+                receiver->ReceiveMessage(tmpMsg);
+                //QMetaObject::invokeMethod(receiver, "ReceiveMessage", Qt::QueuedConnection, Q_ARG(FMCMessage*, tmpMsg));
             }
             delete event;
             receivers.clear();

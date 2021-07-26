@@ -1,30 +1,37 @@
 #ifndef FMCMESSAGEBUS_H
 #define FMCMESSAGEBUS_H
 
+#include <forward_list>
+
 #include <QObject>
 #include <QThread>
 
-extern const QLatin1String ANY_RECV;
+extern const std::string ANY_RECV;
 
 template <class T> class NPEventQueue;
 
 class FMCMessage {
 public:
     FMCMessage() = default;
-    FMCMessage(QString sender, int32_t messageType);
-    FMCMessage(QString sender, int32_t messageType, QString receiver);
+    FMCMessage(const std::string &sender, int32_t messageType);
+    FMCMessage(const std::string &sender, int32_t messageType, const std::string &receiver);
     //! Copy constructor
     FMCMessage(const FMCMessage &other);
 
-    QString Sender();
-    QString Receiver();
+    std::string Sender();
+    std::string Receiver();
 
-    QString m_sender;
-    QString m_receiver = ANY_RECV;
+    std::string m_sender;
+    std::string m_receiver = ANY_RECV;
     int32_t m_messageType = -1;
 };
 Q_DECLARE_METATYPE(FMCMessage)
 
+
+class FMCMessageReceiver {
+public:
+    virtual void ReceiveMessage(FMCMessage* message) = 0;
+};
 
 //!Message bus for exchange data between components
 class FMCMessageBus {
@@ -37,8 +44,10 @@ public:
 
     //! Add message to the bus
     static void PutMessage(FMCMessage *message);
-    //! add new subscriber ot the bus
-    static void Subscribe(QObject *subscriber, const QString& id);
+    //! Add new subscriber ot the bus
+    static void Subscribe(FMCMessageReceiver *subscriber, const std::string& id);
+    //! Remove new subscriber ot the bus
+    static void Unsubscribe(FMCMessageReceiver *subscriber);
 
 private:
     //! Constructor
@@ -54,7 +63,7 @@ private:
 
     //! Mutex for handle subscribers access
     std::mutex m_subscribersMutex;
-    QList<QPair<QObject*, QString>> m_subscribers;
+    std::forward_list<std::pair<FMCMessageReceiver*, std::string>> m_subscribers;
 
     //! Function for message bus loop
     void threadFunction();

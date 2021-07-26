@@ -76,7 +76,7 @@ FMCConsole::FMCConsole(QWidget* parent, Qt::WindowFlags fl, const QString& style
     m_quit_action(nullptr), m_fsaccess_msfs_action(nullptr), m_fsaccess_xplane_action(nullptr), m_fsaccess_fgfs_action(nullptr),
     m_style_a_action(nullptr), m_style_b_action(nullptr), m_style_g_action(nullptr)
 {
-    FMCMessageBus::GetInstance()->Subscribe(this, "FMCConsole");
+//    FMCMessageBus::GetInstance()->Subscribe(this, "FMCConsole");
 
 
     Logger::log(QString("FMCConsole: Application data path=%1").arg(VasPath::getAppDataPath()));

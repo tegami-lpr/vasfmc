@@ -262,7 +262,8 @@ FMCFCUHandler::FMCFCUHandler(ConfigWidgetProvider* config_widget_provider,
     MYASSERT(m_fmc_control != nullptr);
     slotRestartFCU();
     fmc_control->setFCUHandler(this);
-    FMCMessageBus::Subscribe(this, "FMCFCUHandler");
+
+//    FMCMessageBus::Subscribe(this, "FMCFCUHandler");
 }
 
 //--------------------------------------------------------------------------------------------------------------------//
