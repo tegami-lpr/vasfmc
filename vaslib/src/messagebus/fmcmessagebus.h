@@ -30,7 +30,7 @@ Q_DECLARE_METATYPE(FMCMessage)
 
 class FMCMessageReceiver {
 public:
-    virtual void ReceiveMessage(FMCMessage* message) = 0;
+    virtual void ReceiveMessage(FMCMessage* message);
 };
 
 //!Message bus for exchange data between components

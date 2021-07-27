@@ -31,12 +31,10 @@
 #include "vlassert.h"
 #include "logger.h"
 #include "config.h"
+#include <fmcmessagebus.h>
 
 #include "fmc_console_defines.h"
-
 #include "ui_fmc_console.h"
-
-#include "fmcmessagebus.h"
 
 class FMCGPSHandler;
 class FMCFCUHandler;
@@ -56,7 +54,7 @@ class QAction;
 /////////////////////////////////////////////////////////////////////////////
 
 //! console
-class FMCConsole : 
+class FMCConsole :
 #if VASFMC_GAUGE
     public QObject,
 #else
@@ -66,6 +64,7 @@ class FMCConsole :
 #if !VASFMC_GAUGE
     , private Ui::FMCConsole
 #endif
+    , private FMCMessageReceiver
 {
     Q_OBJECT
 
@@ -97,9 +96,6 @@ public slots:
     void slotStyleG();
     void slotTriggerRestartFMC() { QTimer::singleShot(1, this, SLOT(slotRestartFMC())); }
     void slotTriggerRestartCDU() { QTimer::singleShot(1, this, SLOT(slotRestartCDU())); }
-
-    //! Slot for receiving messages from message bus
-    void ReceiveMessage(FMCMessage *message);
 
 protected slots:
 

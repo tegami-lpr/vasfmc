@@ -855,8 +855,4 @@ void FMCConsole::slotTimeUsed(const QString& name, uint millisecs)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void FMCConsole::ReceiveMessage(FMCMessage *message) {
-
-}
-
 // End of file

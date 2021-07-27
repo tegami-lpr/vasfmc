@@ -10,6 +10,11 @@ FMCMessageBus *FMCMessageBus::m_instance = nullptr;
 
 //--------------------------------------------------------------------------------------------------------------------//
 
+void FMCMessageReceiver::ReceiveMessage(FMCMessage *message) {
+}
+
+//--------------------------------------------------------------------------------------------------------------------//
+
 FMCMessage::FMCMessage(const std::string &sender, int32_t messageType) : FMCMessage (sender, messageType, ANY_RECV){
 }
 
