@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2005-2006 Martin Böhme
+// Copyright (C) 2005-2006 Martin Bï¿½hme
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #include "logger.h"
 #include "vas_path.h"
 
-#include "fmc_cdu.h"
+#include "cdu/fmc_cdu.h"
 #include "fmc_fcu.h"
 #include "fmc_console.h"
 #include "fmc_navdisplay.h"

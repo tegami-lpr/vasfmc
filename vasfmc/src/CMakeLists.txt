@@ -17,9 +17,9 @@ find_package(OpenGL)
 
 file(GLOB VASFMC_SOURCES fmc_data.cpp fmc_control.cpp fmc_autopilot.cpp fmc_autothrottle.cpp fmc_processor.cpp
         fmc_navdisplay.cpp fmc_navdisplay_glwidget.cpp fmc_navdisplay_style.cpp fmc_navdisplay_style_a.cpp
-        fmc_navdisplay_style_b.cpp gldraw.cpp opengltext.cpp lfontrenderer.cpp fmc_cdu.cpp fmc_cdu_style_a.cpp
-        fmc_cdu_page_manager.cpp fmc_cdu_page_base.cpp fmc_cdu_page.cpp fmc_cdu_page_menu.cpp fmc_cdu_page_perf.cpp
-        fmc_cdu_page_atc.cpp fmc_console.cpp fmc_pfd.cpp fmc_pfd_glwidget_base.cpp fmc_pfd_glwidget_style_a.cpp
+        fmc_navdisplay_style_b.cpp gldraw.cpp opengltext.cpp lfontrenderer.cpp cdu/fmc_cdu.cpp cdu/fmc_cdu_style_a.cpp
+        cdu/fmc_cdu_page_manager.cpp cdu/fmc_cdu_page_base.cpp cdu/fmc_cdu_page.cpp cdu/fmc_cdu_page_menu.cpp cdu/fmc_cdu_page_perf.cpp
+        cdu/fmc_cdu_page_atc.cpp fmc_console.cpp fmc_pfd.cpp fmc_pfd_glwidget_base.cpp fmc_pfd_glwidget_style_a.cpp
         fmc_pfd_glwidget_style_b.cpp fmc_ecam.cpp fmc_ecam_glwidget_base.cpp fmc_ecam_glwidget_style_a.cpp
         fmc_ecam_glwidget_style_b.cpp fmc_sounds.cpp fmc_sounds_style_a.cpp fmc_sounds_style_b.cpp fmc_sounds_handler.cpp
         vas_widget.cpp vas_gl_widget.cpp mmx.cpp fmc_flightstatus_checker_base.cpp
@@ -31,8 +31,8 @@ file(GLOB VASFMC_SOURCES fmc_data.cpp fmc_control.cpp fmc_autopilot.cpp fmc_auto
 file(GLOB VASFMC_HEADERS defines.h fmc_data.h fmc_control_defines.h fmc_control.h fmc_autopilot.h fmc_autopilot_defines.h
         fmc_autothrottle.h fmc_autothrottle_defines.h fmc_processor.h fmc_navdisplay_defines.h fmc_navdisplay.h
         fmc_navdisplay_glwidget.h fmc_navdisplay_style.h fmc_navdisplay_style_a.h fmc_navdisplay_style_b.h
-        gldraw.h opengltext.h lfontrenderer.h fmc_cdu.h fmc_cdu_defines.h fmc_cdu_style_a.h fmc_cdu_page_manager.h
-        fmc_cdu_page_base.h fmc_cdu_page.h fmc_cdu_page_menu.h fmc_cdu_page_perf.h fmc_cdu_page_atc.h fmc_console_defines.h
+        gldraw.h opengltext.h lfontrenderer.h cdu/fmc_cdu.h cdu/fmc_cdu_defines.h cdu/fmc_cdu_style_a.h cdu/fmc_cdu_page_manager.h
+        cdu/fmc_cdu_page_base.h cdu/fmc_cdu_page.h cdu/fmc_cdu_page_menu.h cdu/fmc_cdu_page_perf.h cdu/fmc_cdu_page_atc.h fmc_console_defines.h
         fmc_console.h fmc_pfd_defines.h fmc_pfd.h fmc_pfd_glwidget_base.h fmc_pfd_glwidget_style_a.h fmc_pfd_glwidget_style_b.h
         fmc_ecam_defines.h fmc_ecam.h fmc_ecam_glwidget_base.h fmc_ecam_glwidget_style_a.h fmc_ecam_glwidget_style_b.h fmc_sounds_defines.h
         fmc_sounds.h fmc_sounds_style_a.h fmc_sounds_style_b.h fmc_sounds_handler.h vas_widget.h vas_gl_widget.h
