@@ -573,13 +573,13 @@ void FMCCDUPageStyleAHolding::paintPage(QPainter& painter) const
 
     if (!m_holding.isValid())
     {
-        drawTextLeft(painter, 1, 3, "[   ]°", CYAN);
+        drawTextLeft(painter, 1, 3, "[   ]Â°", CYAN);
         drawTextLeft(painter, 1, 5, "[ ]", CYAN);
         drawTextLeft(painter, 1, 7, "1.0", CYAN);
     }
     else
     {
-        drawTextLeft(painter, 1, 3, QString("%1°").arg(m_holding.holdingTrack()), color);
+        drawTextLeft(painter, 1, 3, QString("%1Â°").arg(m_holding.holdingTrack()), color);
         drawTextLeft(painter, 1, 5, m_holding.holdTurnDirText(), color);
         drawTextLeft(painter, 1, 7, QString("%1").arg(m_holding.holdLegLengthMin(), 0, 'f', 1), color);
     }
@@ -1618,7 +1618,7 @@ void FMCCDUPageStyleAInit::paintPage(QPainter& painter) const
             fl_temp_string += "/";
             if (fmcControl().normalRoute().cruiseTemp() < -999) fl_temp_string += "---";
             else fl_temp_string += QString::number(fmcControl().normalRoute().cruiseTemp());
-            fl_temp_string += "°";
+            fl_temp_string += "Â°";
             drawTextLeft(painter, 1, 13, fl_temp_string, CYAN);
 
             if (!fmcControl().normalRoute().departureAirportId().isEmpty() != 0 && 
@@ -3345,11 +3345,11 @@ void FMCCDUPageStyleAData::paintPage(QPainter& painter) const
                 drawTextLeft(painter, 1, 3, airport->id()+m_rwy_id, CYAN);
                 drawTextLeft(painter, 1, 5, name, GREEN);
                 drawTextLeft(painter, 1, 7, runway.latStringDegMinSec()+"/"+runway.lonStringDegMinSec(), GREEN);
-                drawTextLeft(painter, 1, 11, QString("%1M/%2°/%3").
+                drawTextLeft(painter, 1, 11, QString("%1M/%2Â°/%3").
                              arg(runway.lengthM()).arg(runway.hdg()).arg(runway.thresholdElevationFt()), GREEN);
 
                 if (runway.hasILS())
-                    drawTextLeft(painter, 1, 13, QString("%1/%2°").
+                    drawTextLeft(painter, 1, 13, QString("%1/%2Â°").
                                  arg(runway.ILSFreq()/1000.0, 3, 'f', 2).arg(runway.ILSHdg()), GREEN);
                 else
                     drawTextLeft(painter, 1, 13, "---.--/---", GREEN);
@@ -3960,7 +3960,7 @@ void FMCCDUPageStyleAProgress::paintPage(QPainter& painter) const
 
     if (m_wpt == 0)
     {
-        drawTextLeft(painter, 1, 9, "---° /----.-");
+        drawTextLeft(painter, 1, 9, "---Â° /----.-");
         drawTextRight(painter, 8, 9, "TO ");
         drawTextRight(painter, 1, 9, "[     ]", CYAN);
     }
@@ -3972,7 +3972,7 @@ void FMCCDUPageStyleAProgress::paintPage(QPainter& painter) const
             m_flightstatus->current_position_raw, *m_wpt, distance, bearing);
         bearing -= m_flightstatus->magvar;
 
-        drawTextLeft(painter, 1, 9, QString("%1° /%2").
+        drawTextLeft(painter, 1, 9, QString("%1Â° /%2").
                      arg(bearing, 3, 'f', 0, QChar('0')).arg(distance, 0, 'f', 1), GREEN);
         drawTextRight(painter, 8, 9, "TO ");
 
