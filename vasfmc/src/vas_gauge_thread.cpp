@@ -37,9 +37,9 @@
 #include "cdu/fmc_cdu.h"
 #include "fmc_fcu.h"
 #include "fmc_console.h"
-#include "fmc_navdisplay.h"
-#include "fmc_pfd.h"
-#include "fmc_ecam.h"
+#include "navdisplay/fmc_navdisplay.h"
+#include "pfd/fmc_pfd.h"
+#include "ecam/fmc_ecam.h"
 
 #include <QApplication>
 

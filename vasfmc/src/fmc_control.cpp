@@ -51,15 +51,15 @@
 #include "flight_mode_tracker.h"
 #include "noise_generator.h"
 
-#include "fmc_sounds_handler.h"
+#include "sounds/fmc_sounds_handler.h"
 #include "fmc_autopilot.h"
 #include "fmc_autothrottle.h"
-#include "fmc_gps.h"
+#include "gps/fmc_gps.h"
 #include "fmc_fcu.h"
 #include "cdu/fmc_cdu.h"
-#include "fmc_pfd.h"
-#include "fmc_navdisplay.h"
-#include "fmc_ecam.h"
+#include "pfd/fmc_pfd.h"
+#include "navdisplay/fmc_navdisplay.h"
+#include "ecam/fmc_ecam.h"
 
 #include "fmc_flightstatus_checker_style_a.h"
 

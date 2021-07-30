@@ -26,8 +26,8 @@
 
 #include <vas_path.h>
 
-#include "fmc_sounds_handler.h"
-#include "fmc_sounds.h"
+#include "sounds/fmc_sounds_handler.h"
+#include "sounds/fmc_sounds.h"
 
 
 #include "checklist.h"

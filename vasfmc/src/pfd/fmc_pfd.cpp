@@ -35,10 +35,10 @@
 
 #include "fmc_control.h"
 
-#include "fmc_pfd.h"
-#include "fmc_pfd_defines.h"
-#include "fmc_pfd_glwidget_style_a.h"
-#include "fmc_pfd_glwidget_style_b.h"
+#include "pfd/fmc_pfd.h"
+#include "pfd/fmc_pfd_defines.h"
+#include "pfd/fmc_pfd_glwidget_style_a.h"
+#include "pfd/fmc_pfd_glwidget_style_b.h"
 
 #ifndef GL_MULTISAMPLE
 #define GL_MULTISAMPLE  0x809D
