@@ -45,13 +45,13 @@ public:
                                   bool no_arrow_line = false,
                                   double close_gap_half_width = 0);
 
-    // draws a circle, angle(-PI/2) = west (=270°), angle(0) = north (=0°)
+    // draws a circle, angle(-PI/2) = west (=270Â°), angle(0) = north (=0Â°)
     static void drawCircle(const double& radius,
                            const double& start_angle_rad = -M_PI/2.0,
                            const double& stop_angle_rad = M_PI/2.0,
                            const double& angle_inc = 0.025f);
 
-    // draws a circle, angle(-PI/2) = west (=270°), angle(0) = north (=0°)
+    // draws a circle, angle(-PI/2) = west (=270Â°), angle(0) = north (=0Â°)
     static void drawCircleOffset(const double& radius,
                                  const double& start_angle_rad,
                                  const double& stop_angle_rad,
@@ -59,13 +59,13 @@ public:
                                  const double& offset_y,
                                  const double& angle_inc = 0.025f);
 
-    // draws a circle, angle(-PI/2) = west (=270°), angle(0) = north (=0°)
+    // draws a circle, angle(-PI/2) = west (=270Â°), angle(0) = north (=0Â°)
     static void drawFilledCircle(const double& radius,
                                  const double& start_angle_rad = -M_PI/2.0,
                                  const double& stop_angle_rad = M_PI/2.0,
                                  const double& angle_inc = 0.025f);
 
-    // draws a circle, angle(-PI/2) = west (=270°), angle(0) = north (=0°)
+    // draws a circle, angle(-PI/2) = west (=270Â°), angle(0) = north (=0Â°)
     static void drawFilledCircleOffset(const double& radius,
                                        const double& start_angle_rad,
                                        const double& stop_angle_rad,

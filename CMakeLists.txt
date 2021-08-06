@@ -9,5 +9,6 @@ set(VF_CONFIG_DIR "share/cmake" CACHE STRING "CMake config directory")
 
 set(OUTPUT_DIR "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
 
+add_subdirectory(fwlib)
 add_subdirectory(vaslib)
 add_subdirectory(vasfmc)

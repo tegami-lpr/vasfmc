@@ -70,7 +70,7 @@ file(GLOB VASLIB_SOURCES messagebus/fmcmessagebus.cpp
         procedure_serialization.cpp sid.cpp star.cpp transition.cpp approach.cpp flightroute.cpp flightstatus.cpp fsaccess.cpp
         navcalc.cpp navdata.cpp geodata.cpp projection_mercator.cpp projection_greatcircle.cpp transport_layer_iface.cpp
         transport_layer_tcpclient.cpp transport_layer_tcpserver.cpp transport_layer_tcpserver_clientbuffer.cpp containerfactory.cpp
-        containerbase.cpp infodlgimpl.cpp declination.cpp declination_geomag.cpp vas_path.cpp controller_throttle.cpp
+        containerbase.cpp infodlgimpl.cpp declination.cpp declination_geomag.cpp fwpath.cpp controller_throttle.cpp
         controller_speed.cpp fly_by_wire.cpp flight_mode_tracker.cpp statistics.cpp aircraft_data.cpp noise_generator.cpp
         vroute.cpp weather.cpp)
 file(GLOB VASLIB_HEADERS messagebus/fmcmessagebus.h messagebus/eventqueue.h
