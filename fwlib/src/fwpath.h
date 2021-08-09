@@ -42,7 +42,7 @@ public:
     static const std::string& getPath() { return m_path; }
 
     //! Function check is appdir is writable
-    static void checkStanalone();
+    static bool checkPortable();
 
     //! Function set standalone sign, forcing app to find data files in app directory
     static void setStandalone();
@@ -60,7 +60,14 @@ public:
     static std::string getAppDataPath();
 
     //! Function check and create if needed user data path
-    static bool checkUserDataPath();
+    static bool createUserDataPath();
+
+    //! Function return path converted to native separators
+    static std::string toNativeSeparators(const std::string &path);
+
+    static bool checkIsExists(const std::string &path);
+
+    static bool checkIsDir(const std::string &path);
 
 private:
 

@@ -1,66 +1,55 @@
 #include "fwpath.h"
 
-//#include <thread>
-
-
 #include <processthreadsapi.h>
-#include <userenv.h>
+#include <shlwapi.h>
+#include <shlobj.h>
 #include <windows.h>
 
 
-//QString VasPath::m_path=".";
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include "strutils.h"
+
 std::string FWPath::m_path;
 
 bool FWPath::m_isStandalone = false;
 
 //--------------------------------------------------------------------------------------------------------------------//
 
-//QString VasPath::prependPath(const QString &relativePath)
-//{
-//    QString ret;
-//    QString tmpPath = QDir::fromNativeSeparators(relativePath);
-//    if (relativePath.isEmpty()) ret = m_path;
-//    else ret = m_path + (tmpPath[0] == '/' ? "" : "/") +  relativePath;
-//    return ret.trimmed();
-//}
-
-
 std::string FWPath::prependPath(const std::string &relativePath, FWPath::EDataPath pathType) {
-//    std::string dataPath;
-//    do {
-//        if (!m_path.isEmpty()) {
-//            dataPath = m_path;
-//            break;
-//        }
-//
-//        if (isStandalone() || pathType == dpApp) {
-//            dataPath = getAppDataPath();
-//            break;
-//        }
-//
-//        if (pathType == dpAuto) {
-//            QString userDirPath = prependPath(relativePath, dpUser);
-//            QFileInfo info(userDirPath);
-//            if (info.exists()) return userDirPath;
-//
-//            QString appDirPath = prependPath(relativePath, dpApp);
-//            info.setFile(appDirPath);
-//            if (info.exists()) return appDirPath;
-//
-//            //if all fail, then return path relative to user dir
-//            return userDirPath;
-//        }
-//
-//        dataPath = getUserDataPath();
-//
-//    } while(false);
-//
-//    QString ret;
-//    QString tmpPath = QDir::fromNativeSeparators(relativePath);
-//    if (relativePath.isEmpty()) ret = dataPath;
-//    else ret = dataPath + (tmpPath[0] == '/' ? "" : "/") +  relativePath;
-//    return ret.trimmed();
-    return std::string();
+    std::string dataPath;
+    do {
+        if (!m_path.empty()) {
+            dataPath = m_path;
+            break;
+        }
+
+        if (isStandalone() || pathType == dpApp) {
+            dataPath = getAppDataPath();
+            break;
+        }
+
+        if (pathType == dpAuto) {
+            std::string userDirPath = prependPath(relativePath, dpUser);
+            if (checkIsDir(userDirPath)) return userDirPath;
+
+            std::string appDirPath = prependPath(relativePath, dpApp);
+            if (checkIsDir(appDirPath)) return appDirPath;
+
+            //if all fail, then return path relative to user dir
+            return userDirPath;
+        }
+
+        dataPath = getUserDataPath();
+    } while(false);
+
+    std::string ret;
+    std::string tmpPath = toNativeSeparators(relativePath);
+    if (relativePath.empty()) ret = dataPath;
+    else ret = dataPath + (tmpPath[0] == '\\' ? "" : "\\") +  relativePath;
+
+    return trim_copy(ret);
 }
 
 //--------------------------------------------------------------------------------------------------------------------//
@@ -69,30 +58,18 @@ std::string FWPath::getUserDataPath() {
     if (!m_path.empty()) return m_path;
     if (isStandalone()) return getAppDataPath();
 
+    CHAR szPath[MAX_PATH];
+    if (! SUCCEEDED(SHGetFolderPathA(nullptr, CSIDL_APPDATA, nullptr, 0, szPath))) return std::string();
 
-    std::string userPath;
-    HANDLE tokenHandle;
-    HANDLE processHandle = GetCurrentProcess();
+    PathAppend( szPath, TEXT("\\FWFmc") );
 
-    bool res = OpenProcessToken(processHandle, TOKEN_READ, &tokenHandle);
-    do {
-        if (!res) break;
-        char pBuf[256];
-        DWORD len = sizeof(pBuf);
-        memset(pBuf, 0, len);
-        res = GetUserProfileDirectory(tokenHandle, pBuf, &len);
-        if (!res) break;
-        userPath = std::string(pBuf);
-    } while(false);
-
-    CloseHandle(tokenHandle);
-    return userPath;
+    return std::string(szPath);
 }
 
 //--------------------------------------------------------------------------------------------------------------------//
 
 std::string FWPath::getAppDataPath() {
-    char pBuf[256];
+    char pBuf[MAX_PATH];
     size_t len = sizeof(pBuf);
     memset(pBuf, 0, len);
     DWORD ret = GetModuleFileName(nullptr, pBuf, len);
@@ -107,10 +84,16 @@ std::string FWPath::getAppDataPath() {
 
 //--------------------------------------------------------------------------------------------------------------------//
 
-bool FWPath::checkUserDataPath() {
-//    QDir dir(getUserDataPath());
-//    if (dir.exists()) return true;
-//    return dir.mkpath(dir.absolutePath());
+bool FWPath::createUserDataPath() {
+
+    auto userDir = getUserDataPath();
+    if (userDir.empty()) return false;
+
+    bool res = checkIsDir(userDir);
+    if (res) return true;
+
+    res = CreateDirectoryA(getUserDataPath().c_str(), nullptr);
+    return res;
 }
 
 //--------------------------------------------------------------------------------------------------------------------//
@@ -123,11 +106,46 @@ bool FWPath::isStandalone() {
     return m_isStandalone;
 }
 
-void FWPath::checkStanalone() {
-//    QDir dir(getAppDataPath());
-//    QFile tmpFile(dir.absolutePath() + "/tmp.tmp");
-//    bool res = tmpFile.open(QIODevice::Truncate | QIODevice::WriteOnly | QIODevice::Unbuffered);
-//    m_isStandalone = res;
-//    tmpFile.close();
-//    tmpFile.remove();
+bool FWPath::checkPortable() {
+    if (m_isStandalone) return true;
+
+    m_isStandalone = false;
+    auto tmpFilePath = prependPath("tmp.tmp", dpApp);
+    auto fileHandle = CreateFile(tmpFilePath.c_str(), (GENERIC_READ | GENERIC_WRITE), 0, nullptr, CREATE_ALWAYS,
+                                  FILE_ATTRIBUTE_ARCHIVE, nullptr);
+    do {
+        CloseHandle(fileHandle);
+        if (fileHandle == INVALID_HANDLE_VALUE) break;
+        DeleteFile(tmpFilePath.c_str());
+        m_isStandalone = true;
+    } while(false);
+
+    return m_isStandalone;
+}
+
+//--------------------------------------------------------------------------------------------------------------------//
+
+std::string FWPath::toNativeSeparators(const std::string &path) {
+    auto tmpPath = path;
+    for (char & p : tmpPath) {
+        if (p == '/') p = '\\';
+    }
+    return tmpPath;
+}
+
+//--------------------------------------------------------------------------------------------------------------------//
+
+bool FWPath::checkIsExists(const std::string &path) {
+    struct stat info {};
+    return (stat(path.c_str(), &info) == 0);
+}
+
+//--------------------------------------------------------------------------------------------------------------------//
+
+bool FWPath::checkIsDir(const std::string &path) {
+    struct stat info {};
+    auto res = stat(path.c_str(), &info);
+    if (res != 0) return false;
+
+    return ( info.st_mode & S_IFDIR );
 }
