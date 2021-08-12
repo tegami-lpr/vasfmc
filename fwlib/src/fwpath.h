@@ -45,10 +45,10 @@ public:
     static bool checkPortable();
 
     //! Function set standalone sign, forcing app to find data files in app directory
-    static void setStandalone();
+    static void setPortable();
 
     //! Function return standalone flag
-    static bool isStandalone();
+    static bool isPortable();
 
     //! Function prepend \param relativePath by path where data is stored
     static std::string prependPath(const std::string &relativePath, EDataPath pathType = dpUser);
@@ -65,14 +65,17 @@ public:
     //! Function return path converted to native separators
     static std::string toNativeSeparators(const std::string &path);
 
+    //! Function return if file exists
     static bool checkIsExists(const std::string &path);
 
+    //! Function return if dir exists
     static bool checkIsDir(const std::string &path);
 
 private:
-
+    //! Path, forcely used as app root, instead of deducting
     static std::string m_path;
-    static bool m_isStandalone;
+    //! Floag, is app folder is writable
+    static bool m_isAppDirWritable;
 };
 
 #endif // VAS_PATH_H

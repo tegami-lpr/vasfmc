@@ -13,7 +13,7 @@
 
 std::string FWPath::m_path;
 
-bool FWPath::m_isStandalone = false;
+bool FWPath::m_isAppDirWritable = false;
 
 //--------------------------------------------------------------------------------------------------------------------//
 
@@ -25,7 +25,7 @@ std::string FWPath::prependPath(const std::string &relativePath, FWPath::EDataPa
             break;
         }
 
-        if (isStandalone() || pathType == dpApp) {
+        if (isPortable() || pathType == dpApp) {
             dataPath = getAppDataPath();
             break;
         }
@@ -56,7 +56,7 @@ std::string FWPath::prependPath(const std::string &relativePath, FWPath::EDataPa
 
 std::string FWPath::getUserDataPath() {
     if (!m_path.empty()) return m_path;
-    if (isStandalone()) return getAppDataPath();
+    if (isPortable()) return getAppDataPath();
 
     CHAR szPath[MAX_PATH];
     if (! SUCCEEDED(SHGetFolderPathA(nullptr, CSIDL_APPDATA, nullptr, 0, szPath))) return std::string();
@@ -98,18 +98,18 @@ bool FWPath::createUserDataPath() {
 
 //--------------------------------------------------------------------------------------------------------------------//
 
-void FWPath::setStandalone() {
-    m_isStandalone = true;
+void FWPath::setPortable() {
+    m_isAppDirWritable = true;
 }
 
-bool FWPath::isStandalone() {
-    return m_isStandalone;
+bool FWPath::isPortable() {
+    return m_isAppDirWritable;
 }
 
 bool FWPath::checkPortable() {
-    if (m_isStandalone) return true;
+    if (m_isAppDirWritable) return true;
 
-    m_isStandalone = false;
+    m_isAppDirWritable = false;
     auto tmpFilePath = prependPath("tmp.tmp", dpApp);
     auto fileHandle = CreateFile(tmpFilePath.c_str(), (GENERIC_READ | GENERIC_WRITE), 0, nullptr, CREATE_ALWAYS,
                                   FILE_ATTRIBUTE_ARCHIVE, nullptr);
@@ -117,10 +117,10 @@ bool FWPath::checkPortable() {
         CloseHandle(fileHandle);
         if (fileHandle == INVALID_HANDLE_VALUE) break;
         DeleteFile(tmpFilePath.c_str());
-        m_isStandalone = true;
+        m_isAppDirWritable = true;
     } while(false);
 
-    return m_isStandalone;
+    return m_isAppDirWritable;
 }
 
 //--------------------------------------------------------------------------------------------------------------------//
@@ -147,5 +147,5 @@ bool FWPath::checkIsDir(const std::string &path) {
     auto res = stat(path.c_str(), &info);
     if (res != 0) return false;
 
-    return ( info.st_mode & S_IFDIR );
+    return ( info.st_mode & (unsigned short)S_IFDIR );
 }
